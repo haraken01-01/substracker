@@ -460,7 +460,13 @@ body {
             🔒 固定レート
           </button>
         </div>
-        <div id="f-rate-display" style="margin-top:8px;font-size:12px;color:var(--text2);padding:8px 12px;background:var(--bg2);border-radius:var(--radius-md)"></div>
+        <div id="f-rate-display" style="margin-top:8px;font-size:12px;color:var(--text2);padding:8px 12px;background:var(--bg2);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span id="f-rate-text"></span>
+          <button type="button" onclick="refreshRate()" id="f-rate-refresh-btn"
+            style="font-size:11px;padding:4px 10px;border:.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">
+            🔄 更新
+          </button>
+        </div>
         <div id="f-rate-manual" style="display:none;margin-top:8px">
           <label class="form-label">固定レート（1ドル/ユーロ = ?円）</label>
           <input class="form-input" id="f-rate-value" type="number" inputmode="decimal" placeholder="150.00" step="0.01" min="0">
@@ -627,15 +633,16 @@ async function fetchFxRates() {
     if (saved.USD) fxRates = saved;
   } catch(e) {}
 
-  // Fetch fresh rates in parallel
+  // Fetch fresh rates (open.er-api.com: free, CORS対応)
   try {
-    const [r1, r2] = await Promise.all([
-      fetch('https://api.frankfurter.app/latest?from=USD&to=JPY').then(r => r.json()),
-      fetch('https://api.frankfurter.app/latest?from=EUR&to=JPY').then(r => r.json()),
-    ]);
+    const res = await fetch('https://open.er-api.com/v6/latest/JPY');
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    if (data.result !== 'success') throw new Error('api error');
+    // data.rates は JPYベースなので逆数を取る
     fxRates = {
-      USD: r1.rates?.JPY ?? fxRates.USD,
-      EUR: r2.rates?.JPY ?? fxRates.EUR,
+      USD: data.rates?.USD ? Math.round((1 / data.rates.USD) * 100) / 100 : fxRates.USD,
+      EUR: data.rates?.EUR ? Math.round((1 / data.rates.EUR) * 100) / 100 : fxRates.EUR,
       updatedAt: new Date().toISOString(),
     };
     localStorage.setItem(FX_STORAGE_KEY, JSON.stringify(fxRates));
@@ -1069,6 +1076,10 @@ function onCurrencyChange() {
     isForeign ? `金額 (${CURRENCY_LABELS[cur]})` : '金額 (円)';
   document.getElementById('f-amount').placeholder =
     cur === 'USD' ? '19.99' : cur === 'EUR' ? '9.99' : '980';
+  if (isForeign) {
+    // 切替時にレートを取得
+    fetchFxRates();
+  }
   updateRateDisplay();
 }
 
@@ -1080,19 +1091,37 @@ function setRateMode(mode, btn) {
   updateRateDisplay();
 }
 
+async function refreshRate() {
+  const btn = document.getElementById('f-rate-refresh-btn');
+  if (btn) { btn.textContent = '取得中...'; btn.disabled = true; }
+  await fetchFxRates();
+  if (btn) { btn.textContent = '🔄 更新'; btn.disabled = false; }
+  updateRateDisplay();
+}
+
 function updateRateDisplay() {
-  const el = document.getElementById('f-rate-display');
-  if (!el) return;
+  const textEl = document.getElementById('f-rate-text');
+  const dispEl = document.getElementById('f-rate-display');
+  if (!textEl) return;
   const cur = document.getElementById('f-currency')?.value;
   if (!cur || cur === 'JPY') return;
   const rate = fxRates[cur];
   const sym  = CURRENCY_SYMBOLS[cur];
-  if (formRateMode === 'variable') {
-    el.textContent = rate
-      ? `現在のレート: ${sym}1 = ¥${rate.toFixed(2)}（${new Date(fxRates.updatedAt).toLocaleDateString('ja-JP')} 取得）`
-      : `レート取得中...（オフライン時は前回値を使用）`;
+  if (formRateMode === 'fixed') {
+    textEl.textContent = '入力したレートで固定されます。決済済みの場合などに使用してください。';
+    if (dispEl) dispEl.querySelector('#f-rate-refresh-btn') && (document.getElementById('f-rate-refresh-btn').style.display = 'none');
   } else {
-    el.textContent = `入力したレートで固定されます。決済済みの場合などに使用してください。`;
+    if (dispEl) { const rb = document.getElementById('f-rate-refresh-btn'); if(rb) rb.style.display = ''; }
+    if (rate) {
+      const dateStr = fxRates.updatedAt
+        ? new Date(fxRates.updatedAt).toLocaleDateString('ja-JP', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'})
+        : '';
+      textEl.textContent = `${sym}1 = ¥${rate.toFixed(2)}${dateStr ? '（' + dateStr + ' 取得）' : ''}`;
+      textEl.style.color = 'var(--text)';
+    } else {
+      textEl.textContent = 'レート未取得 — 「更新」ボタンで取得してください';
+      textEl.style.color = 'var(--warn)';
+    }
   }
 }
 
