@@ -431,16 +431,50 @@ body {
 
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">金額 (円)</label>
-        <input class="form-input" id="f-amount" type="number" inputmode="numeric" placeholder="980" min="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">支払いサイクル</label>
-        <select class="form-select" id="f-cycle" onchange="autoFillRenew()">
-          <option value="monthly">月払い</option>
-          <option value="yearly">年払い</option>
+        <label class="form-label">通貨</label>
+        <select class="form-select" id="f-currency" onchange="onCurrencyChange()" style="height:44px">
+          <option value="JPY">¥ 円</option>
+          <option value="USD">$ USD</option>
+          <option value="EUR">€ EUR</option>
         </select>
       </div>
+      <div class="form-group">
+        <label class="form-label" id="f-amount-label">金額</label>
+        <input class="form-input" id="f-amount" type="number" inputmode="decimal" placeholder="980" min="0" step="0.01">
+      </div>
+    </div>
+
+    <!-- 外貨レート設定（$/€選択時のみ表示） -->
+    <div id="f-rate-section" style="display:none">
+      <div class="form-group">
+        <label class="form-label">レート設定</label>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="seg-btn active" id="f-rate-variable"
+            onclick="setRateMode('variable',this)"
+            style="flex:1;border:.5px solid var(--border);border-radius:var(--radius-md)">
+            🔄 変動レート
+          </button>
+          <button type="button" class="seg-btn" id="f-rate-fixed"
+            onclick="setRateMode('fixed',this)"
+            style="flex:1;border:.5px solid var(--border);border-radius:var(--radius-md)">
+            🔒 固定レート
+          </button>
+        </div>
+        <div id="f-rate-display" style="margin-top:8px;font-size:12px;color:var(--text2);padding:8px 12px;background:var(--bg2);border-radius:var(--radius-md)"></div>
+        <div id="f-rate-manual" style="display:none;margin-top:8px">
+          <label class="form-label">固定レート（1ドル/ユーロ = ?円）</label>
+          <input class="form-input" id="f-rate-value" type="number" inputmode="decimal" placeholder="150.00" step="0.01" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- 支払いサイクル -->
+    <div class="form-group">
+      <label class="form-label">支払いサイクル</label>
+      <select class="form-select" id="f-cycle" onchange="autoFillRenew()">
+        <option value="monthly">月払い</option>
+        <option value="yearly">年払い</option>
+      </select>
     </div>
 
     <div class="form-group">
@@ -575,6 +609,73 @@ body {
    CONSTANTS
    ============================================================ */
 const STORAGE_KEY = 'substracker_v1';
+const FX_STORAGE_KEY = 'substracker_fx';
+
+/* ============================================================
+   CURRENCY & FX RATES
+   ============================================================ */
+const CURRENCY_SYMBOLS = { JPY:'¥', USD:'$', EUR:'€' };
+const CURRENCY_LABELS  = { JPY:'円', USD:'USD', EUR:'EUR' };
+
+// In-memory rates (JPY per 1 unit of foreign currency)
+let fxRates = { USD: null, EUR: null, updatedAt: null };
+
+async function fetchFxRates() {
+  // Load saved rates first as fallback
+  try {
+    const saved = JSON.parse(localStorage.getItem(FX_STORAGE_KEY) || '{}');
+    if (saved.USD) fxRates = saved;
+  } catch(e) {}
+
+  // Try to fetch fresh rates
+  try {
+    const res = await fetch('https://api.frankfurter.app/latest?from=USD,EUR&to=JPY');
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    // frankfurter returns rates from base currency to JPY
+    // data.rates for USD->JPY and EUR->JPY
+    const usdJpy = data.base === 'USD' ? data.rates.JPY : null;
+    const eurJpy = data.base === 'EUR' ? data.rates.JPY : null;
+
+    // fetch both in parallel instead
+    const [r1, r2] = await Promise.all([
+      fetch('https://api.frankfurter.app/latest?from=USD&to=JPY').then(r=>r.json()),
+      fetch('https://api.frankfurter.app/latest?from=EUR&to=JPY').then(r=>r.json()),
+    ]);
+    fxRates = {
+      USD: r1.rates?.JPY ?? fxRates.USD,
+      EUR: r2.rates?.JPY ?? fxRates.EUR,
+      updatedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(FX_STORAGE_KEY, JSON.stringify(fxRates));
+  } catch(e) {
+    // Use saved rates silently
+  }
+  // Update rate display in modal if open
+  updateRateDisplay();
+}
+
+function toJPY(amount, currency, rateMode, fixedRate) {
+  if (currency === 'JPY') return amount;
+  const rate = rateMode === 'fixed'
+    ? (fixedRate || 0)
+    : (fxRates[currency] || fixedRate || 0);
+  return amount * rate;
+}
+
+function fmtCurrency(amount, currency, rateMode, fixedRate) {
+  const sym = CURRENCY_SYMBOLS[currency] || '¥';
+  if (currency === 'JPY') return '¥' + Math.round(amount).toLocaleString('ja-JP');
+  const jpy = toJPY(amount, currency, rateMode, fixedRate);
+  const jpyStr = jpy ? ' → ¥' + Math.round(jpy).toLocaleString('ja-JP') : '';
+  const lockIcon = rateMode === 'fixed' ? '🔒' : '🔄';
+  return `${sym}${amount.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}${jpyStr} ${lockIcon}`;
+}
+
+function monthlyAmountJPY(sub) {
+  const base = sub.cycle === 'yearly' ? sub.amount / 12 : sub.amount;
+  return Math.round(toJPY(base, sub.currency || 'JPY', sub.rateMode, sub.fixedRate));
+}
 
 // Preset categories (cannot be deleted)
 const PRESET_CATS = [
@@ -650,7 +751,7 @@ function daysUntil(dateStr) {
 }
 
 function monthlyAmount(sub) {
-  return sub.cycle === 'yearly' ? Math.round(sub.amount / 12) : sub.amount;
+  return monthlyAmountJPY(sub);
 }
 
 function getPmName(pmId) {
@@ -816,7 +917,7 @@ function renderDashboard() {
       <div class="upcoming-dot" style="background:${cat.color}"></div>
       <div style="flex:1;min-width:0">
         <div class="upcoming-name">${esc(s.name)}</div>
-        <div class="upcoming-sub">${fmt(s.amount)}/${s.cycle==='monthly'?'月':'年'} · ${esc(getPmName(s.pmId))}</div>
+        <div class="upcoming-sub">${fmtCurrency(s.amount, s.currency||'JPY', s.rateMode, s.fixedRate)}/${s.cycle==='monthly'?'月':'年'} · ${esc(getPmName(s.pmId))}</div>
       </div>
       ${renewBadge(s.days, s)}
     </div>`;
@@ -870,7 +971,7 @@ function renderSubs() {
         </div>
       </div>
       <div class="sub-price" style="display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:2px;align-self:stretch">
-        <div class="sub-amount">${fmt(s.amount)}</div>
+        <div class="sub-amount">${fmtCurrency(s.amount, s.currency||'JPY', s.rateMode, s.fixedRate)}</div>
         <div style="display:flex;align-items:center;gap:12px">
           ${renewStr ? `<div style="font-size:10px;color:var(--text2)">${renewStr}</div>` : ''}
           <div class="sub-cycle">${s.cycle==='monthly'?'/ 月':'/ 年'}</div>
@@ -964,6 +1065,50 @@ function deleteCategory(id) {
 /* ============================================================
    MODAL: SUBSCRIPTION
    ============================================================ */
+/* ============================================================
+   CURRENCY FORM CONTROLS
+   ============================================================ */
+let formRateMode = 'variable'; // 'variable' | 'fixed'
+
+function onCurrencyChange() {
+  const cur = document.getElementById('f-currency').value;
+  const isForeign = cur !== 'JPY';
+  document.getElementById('f-rate-section').style.display = isForeign ? 'block' : 'none';
+  document.getElementById('f-amount-label').textContent =
+    isForeign ? `金額 (${CURRENCY_LABELS[cur]})` : '金額 (円)';
+  document.getElementById('f-amount').placeholder =
+    cur === 'USD' ? '19.99' : cur === 'EUR' ? '9.99' : '980';
+  updateRateDisplay();
+}
+
+function setRateMode(mode, btn) {
+  formRateMode = mode;
+  document.getElementById('f-rate-variable').classList.toggle('active', mode === 'variable');
+  document.getElementById('f-rate-fixed').classList.toggle('active',   mode === 'fixed');
+  document.getElementById('f-rate-manual').style.display = mode === 'fixed' ? 'block' : 'none';
+  updateRateDisplay();
+}
+
+function updateRateDisplay() {
+  const el = document.getElementById('f-rate-display');
+  if (!el) return;
+  const cur = document.getElementById('f-currency')?.value;
+  if (!cur || cur === 'JPY') return;
+  const rate = fxRates[cur];
+  const sym  = CURRENCY_SYMBOLS[cur];
+  if (formRateMode === 'variable') {
+    el.textContent = rate
+      ? `現在のレート: ${sym}1 = ¥${rate.toFixed(2)}（${new Date(fxRates.updatedAt).toLocaleDateString('ja-JP')} 取得）`
+      : `レート取得中...（オフライン時は前回値を使用）`;
+  } else {
+    el.textContent = `入力したレートで固定されます。決済済みの場合などに使用してください。`;
+  }
+}
+
+/* ============================================================
+   AUTO RENEW & FORM HELPERS
+   ============================================================ */
+
 let editingSubId = null;
 let formAutoRenew = true;
 
@@ -1007,6 +1152,18 @@ function openSubModal(subId) {
   document.getElementById('f-renew').value  = sub?.renew  ?? '';
   document.getElementById('f-note').value   = sub?.note   ?? '';
 
+  // Currency
+  const cur = sub?.currency || 'JPY';
+  document.getElementById('f-currency').value = cur;
+  formRateMode = sub?.rateMode || 'variable';
+  document.getElementById('f-rate-section').style.display = cur !== 'JPY' ? 'block' : 'none';
+  document.getElementById('f-amount-label').textContent = cur !== 'JPY' ? `金額 (${CURRENCY_LABELS[cur]})` : '金額 (円)';
+  document.getElementById('f-rate-variable').classList.toggle('active', formRateMode === 'variable');
+  document.getElementById('f-rate-fixed').classList.toggle('active',   formRateMode === 'fixed');
+  document.getElementById('f-rate-manual').style.display = formRateMode === 'fixed' ? 'block' : 'none';
+  document.getElementById('f-rate-value').value = sub?.fixedRate ?? (fxRates[cur] ? fxRates[cur].toFixed(2) : '');
+  updateRateDisplay();
+
   // Auto renew toggle
   formAutoRenew = sub ? (sub.autoRenew !== false) : true;
   setAutoRenew(formAutoRenew);
@@ -1041,8 +1198,19 @@ function saveSub() {
   if (!name)               { showToast('サービス名を入力してください'); return; }
   if (!amount || amount<=0){ showToast('金額を正しく入力してください'); return; }
 
+  const currency  = document.getElementById('f-currency').value;
+  const rateMode  = currency !== 'JPY' ? formRateMode : 'fixed';
+  const fixedRate = rateMode === 'fixed' && currency !== 'JPY'
+    ? parseFloat(document.getElementById('f-rate-value').value) || null
+    : rateMode === 'variable' && currency !== 'JPY'
+    ? null  // use live rate at display time
+    : null;
+
   const data = {
     name, amount,
+    currency,
+    rateMode,
+    fixedRate,
     cycle:      document.getElementById('f-cycle').value,
     cat:        document.getElementById('f-cat').value,
     start:      document.getElementById('f-start').value || null,
@@ -1241,6 +1409,7 @@ function showToast(msg) {
 /* ============================================================
    INIT
    ============================================================ */
+fetchFxRates(); // 起動時にレート取得（バックグラウンド）
 render();
 </script>
 </body>
