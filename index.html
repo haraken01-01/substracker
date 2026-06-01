@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SubsTrack</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #2A6AFF;
+  --accent-soft: #E8EEFF;
+  --danger: #E24B4A;
+  --danger-soft: #FCEBEB;
+  --warn: #BA7517;
+  --warn-soft: #FAEEDA;
+  --success: #3B6D11;
+  --success-soft: #EAF3DE;
+  --gray: #888780;
+  --gray-soft: #F1EFE8;
+  --purple: #534AB7;
+  --purple-soft: #EEEDFE;
+  --bg: #ffffff;
+  --bg2: #f5f5f3;
+  --bg3: #eeede9;
+  --text: #1a1a18;
+  --text2: #6b6b67;
+  --text3: #999994;
+  --border: rgba(0,0,0,0.1);
+  --border2: rgba(0,0,0,0.18);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1a;
+    --bg2: #262624;
+    --bg3: #2f2f2c;
+    --text: #f0f0ec;
+    --text2: #a0a09c;
+    --text3: #686864;
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(255,255,255,0.18);
+    --accent-soft: #1a2d5a;
+    --danger-soft: #3a1818;
+    --warn-soft: #3a2a0a;
+    --success-soft: #1a2e0a;
+    --gray-soft: #28282a;
+    --purple-soft: #1e1a38;
+  }
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  background: var(--bg2);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Layout */
+.app-shell {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px 80px;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 16px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 20px;
+}
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 100;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 16px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 10px;
+  font-family: inherit;
+  transition: color 0.15s;
+  border-radius: var(--radius-sm);
+}
+.nav-item.active { color: var(--accent); }
+.nav-icon { font-size: 20px; line-height: 1; }
+
+/* Sections */
+.section { display: none; }
+.section.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+
+/* Metric grid */
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.metric-card {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+.metric-label {
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 5px;
+}
+.metric-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.metric-value.accent { color: var(--accent); }
+.metric-value.danger { color: var(--danger); }
+.metric-value.warn { color: var(--warn); }
+
+/* Section header */
+.sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.sec-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Subscription rows */
+.sub-row {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.sub-row:hover { border-color: var(--border2); }
+.sub-emoji {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.sub-info { flex: 1; min-width: 0; }
+.sub-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sub-meta {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.sub-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+.sub-amount {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.sub-cycle {
+  font-size: 10px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-danger { background: var(--danger-soft); color: #a32d2d; }
+.badge-warn   { background: var(--warn-soft);   color: #854f0b; }
+.badge-ok     { background: var(--success-soft); color: #27500a; }
+.badge-info   { background: var(--accent-soft);  color: #185fa5; }
+.badge-gray   { background: var(--gray-soft);    color: #5f5e5a; }
+.badge-purple { background: var(--purple-soft);  color: #3c3489; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: 0.88; }
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 0.5px solid var(--border2);
+}
+.btn-ghost:hover { background: var(--bg2); }
+.btn-danger-ghost {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: none;
+}
+.btn-sm { padding: 6px 13px; font-size: 12px; }
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+}
+
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: 72px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 26px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(42,106,255,0.35);
+  z-index: 90;
+  transition: transform 0.15s, opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.fab:hover { opacity: 0.9; transform: scale(1.05); }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--bg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 20px 20px max(24px, env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--bg3);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+.modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+
+/* Form */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 5px;
+}
+.form-input, .form-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+.form-actions .btn { flex: 1; height: 48px; font-size: 15px; }
+
+/* Segment control */
+.segment {
+  display: flex;
+  background: var(--bg2);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+.seg-btn {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.seg-btn.active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Upcoming list */
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 7px;
+}
+.upcoming-date {
+  width: 38px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.upcoming-date-day { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+.upcoming-date-mon { font-size: 10px; color: var(--text2); }
+.upcoming-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.upcoming-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; }
+.upcoming-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+
+/* Payment method card */
+.pm-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+.pm-chip {
+  width: 44px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.pm-info { flex: 1; }
+.pm-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.pm-detail { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text2);
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-title { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.empty-desc { font-size: 13px; line-height: 1.6; }
+
+/* Period toggle */
+.period-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.period-label { font-size: 13px; color: var(--text2); }
+.period-toggle {
+  display: flex;
+  background: var(--bg2);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+.period-btn {
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.period-btn.active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* Delete confirm */
+.delete-zone {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 0.5px solid var(--border);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.25s;
+  z-index: 300;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Category colors */
+.cat-video   { background: #2A6AFF22; }
+.cat-music   { background: #D85A3022; }
+.cat-cloud   { background: #1D9E7522; }
+.cat-game    { background: #D4537E22; }
+.cat-work    { background: #7F77DD22; }
+.cat-utility { background: #BA751722; }
+.cat-other   { background: #88878022; }
+
+/* Divider */
+.divider {
+  height: 0.5px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+/* Scroll hint shadow at bottom of metric */
+.metric-card.clickable { cursor: pointer; }
+.metric-card.clickable:hover { border-color: var(--border2); }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">💳</div>
+      SubsTrack
+    </div>
+    <span id="topbar-month" style="font-size:13px;color:var(--text2)"></span>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="section active" id="sec-dashboard">
+    <div class="period-row">
+      <span class="period-label">表示期間</span>
+      <div class="period-toggle">
+        <button class="period-btn active" onclick="setPeriod('monthly',this)">月</button>
+        <button class="period-btn" onclick="setPeriod('yearly',this)">年</button>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">サブスク合計</div>
+        <div class="metric-value accent" id="m-sub">¥0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">今月の更新</div>
+        <div class="metric-value warn" id="m-renew">0件</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">月払いサービス</div>
+        <div class="metric-value" id="m-monthly-count">0件</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">年払いサービス</div>
+        <div class="metric-value" id="m-yearly-count">0件</div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-title">更新予定</span>
+    </div>
+    <div id="upcoming-list">
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <div class="empty-title">サブスクを登録しましょう</div>
+        <div class="empty-desc">右下の＋ボタンから追加できます</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUBSCRIPTIONS ===== -->
+  <div class="section" id="sec-subs">
+    <div class="sec-header">
+      <span class="sec-title">サブスク一覧</span>
+      <span id="subs-count-label" style="font-size:12px;color:var(--text2)"></span>
+    </div>
+    <div id="subs-list">
+      <div class="empty-state">
+        <div class="empty-icon">🔄</div>
+        <div class="empty-title">まだサブスクがありません</div>
+        <div class="empty-desc">右下の＋ボタンから追加してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAYMENT METHODS ===== -->
+  <div class="section" id="sec-payments">
+    <div class="sec-header">
+      <span class="sec-title">支払い方法</span>
+    </div>
+    <div id="pm-list">
+      <div class="empty-state">
+        <div class="empty-icon">💳</div>
+        <div class="empty-title">支払い方法を登録してください</div>
+        <div class="empty-desc">カード・PayPay・現金などを追加できます</div>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-ghost" style="width:100%" onclick="openPmModal()">＋ 支払い方法を追加</button>
+    </div>
+  </div>
+
+</div><!-- /app-shell -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="gotoSection('dashboard',this)">
+    <span class="nav-icon">🏠</span>
+    <span>ホーム</span>
+  </button>
+  <button class="nav-item" onclick="gotoSection('subs',this)">
+    <span class="nav-icon">🔄</span>
+    <span>サブスク</span>
+  </button>
+  <button class="nav-item" onclick="gotoSection('payments',this)">
+    <span class="nav-icon">💳</span>
+    <span>支払い方法</span>
+  </button>
+</nav>
+
+<!-- FAB -->
+<button class="fab" id="fab-btn" onclick="openSubModal()" aria-label="追加">＋</button>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== MODAL: サブスク追加/編集 ===== -->
+<div class="modal-overlay" id="modal-sub" onclick="closeModalOnBg(event,'modal-sub')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="sub-modal-title">サブスクを追加</div>
+
+    <div class="form-group">
+      <label class="form-label">サービス名</label>
+      <input class="form-input" id="f-name" type="text" placeholder="Netflix, Spotify など">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">金額 (円)</label>
+        <input class="form-input" id="f-amount" type="number" inputmode="numeric" placeholder="980" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">支払いサイクル</label>
+        <select class="form-select" id="f-cycle">
+          <option value="monthly">月払い</option>
+          <option value="yearly">年払い</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">カテゴリ</label>
+      <select class="form-select" id="f-cat">
+        <option value="video">🎬 動画</option>
+        <option value="music">🎵 音楽</option>
+        <option value="cloud">☁️ クラウド</option>
+        <option value="game">🎮 ゲーム</option>
+        <option value="work">💼 仕事・学習</option>
+        <option value="utility">🔧 ユーティリティ</option>
+        <option value="other">📦 その他</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">加入日</label>
+        <input class="form-input" id="f-start" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">次回更新日</label>
+        <input class="form-input" id="f-renew" type="date">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">支払い方法</label>
+      <select class="form-select" id="f-pm">
+        <option value="">— 未設定 —</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">メモ（任意）</label>
+      <input class="form-input" id="f-note" type="text" placeholder="例：家族プラン、無料トライアル中">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-sub')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveSub()">保存</button>
+    </div>
+
+    <div class="delete-zone" id="sub-delete-zone" style="display:none">
+      <button class="btn btn-danger-ghost" style="width:100%" onclick="deleteSub()">このサブスクを削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: 支払い方法 ===== -->
+<div class="modal-overlay" id="modal-pm" onclick="closeModalOnBg(event,'modal-pm')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">支払い方法を追加</div>
+
+    <div class="form-group">
+      <label class="form-label">種別</label>
+      <div class="segment">
+        <button class="seg-btn active" onclick="setPmType('card',this)">カード</button>
+        <button class="seg-btn" onclick="setPmType('paypay',this)">PayPay</button>
+        <button class="seg-btn" onclick="setPmType('cash',this)">現金</button>
+        <button class="seg-btn" onclick="setPmType('bank',this)">口座振替</button>
+        <button class="seg-btn" onclick="setPmType('other',this)">その他</button>
+      </div>
+    </div>
+
+    <div id="pm-card-fields">
+      <div class="form-group">
+        <label class="form-label">カード名称</label>
+        <input class="form-input" id="pm-name" type="text" placeholder="楽天カード、三井住友カード など">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">ブランド</label>
+          <select class="form-select" id="pm-brand">
+            <option value="Visa">Visa</option>
+            <option value="MC">Mastercard</option>
+            <option value="JCB">JCB</option>
+            <option value="Amex">Amex</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">下4桁（任意）</label>
+          <input class="form-input" id="pm-last4" type="text" inputmode="numeric" placeholder="1234" maxlength="4">
+        </div>
+      </div>
+    </div>
+
+    <div id="pm-other-fields" style="display:none">
+      <div class="form-group">
+        <label class="form-label">名称</label>
+        <input class="form-input" id="pm-other-name" type="text" placeholder="PayPay, Suica など">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-pm')">キャンセル</button>
+      <button class="btn btn-primary" onclick="savePm()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================
+   DATA MODEL & STORAGE
+   ============================ */
+const STORAGE_KEY = 'substracker_v1';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultData();
+    return JSON.parse(raw);
+  } catch(e) { return defaultData(); }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+}
+
+function defaultData() {
+  return { subs: [], paymentMethods: [], version: 1 };
+}
+
+let DB = loadData();
+
+/* ============================
+   UTILITIES
+   ============================ */
+function fmt(n) {
+  return '¥' + Math.round(n).toLocaleString('ja-JP');
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const d = new Date(dateStr); d.setHours(0,0,0,0);
+  return Math.round((d - now) / 86400000);
+}
+
+function monthlyAmount(sub) {
+  return sub.cycle === 'yearly' ? Math.round(sub.amount / 12) : sub.amount;
+}
+
+const CAT_EMOJI = {
+  video:'🎬', music:'🎵', cloud:'☁️',
+  game:'🎮', work:'💼', utility:'🔧', other:'📦'
+};
+const CAT_LABEL = {
+  video:'動画', music:'音楽', cloud:'クラウド',
+  game:'ゲーム', work:'仕事・学習', utility:'ユーティリティ', other:'その他'
+};
+const CAT_BG = {
+  video:'cat-video', music:'cat-music', cloud:'cat-cloud',
+  game:'cat-game', work:'cat-work', utility:'cat-utility', other:'cat-other'
+};
+const PM_COLORS = {
+  card:'#2A6AFF', paypay:'#E24B4A', cash:'#888780',
+  bank:'#1D9E75', other:'#7F77DD'
+};
+const PM_LABEL = {
+  card:'カード', paypay:'PayPay', cash:'現金',
+  bank:'口座振替', other:'その他'
+};
+const PM_ICON = {
+  card:'💳', paypay:'📱', cash:'💴', bank:'🏦', other:'💰'
+};
+
+function getPmName(pmId) {
+  if (!pmId) return '未設定';
+  const pm = DB.paymentMethods.find(p => p.id === pmId);
+  if (!pm) return '未設定';
+  if (pm.type === 'card') return pm.name + (pm.last4 ? ' ****'+pm.last4 : '');
+  return pm.name;
+}
+
+function renewBadge(days) {
+  if (days === null) return '';
+  if (days < 0)  return `<span class="badge badge-danger">${-days}日超過</span>`;
+  if (days === 0) return `<span class="badge badge-danger">今日</span>`;
+  if (days <= 7)  return `<span class="badge badge-warn">${days}日後</span>`;
+  if (days <= 30) return `<span class="badge badge-info">${days}日後</span>`;
+  return `<span class="badge badge-ok">正常</span>`;
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
+
+/* ============================
+   NAVIGATION
+   ============================ */
+let currentSection = 'dashboard';
+let dashPeriod = 'monthly';
+
+function gotoSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  btn.classList.add('active');
+  currentSection = id;
+  document.getElementById('fab-btn').style.display = (id === 'payments') ? 'none' : 'flex';
+  document.getElementById('fab-btn').onclick = (id === 'subs')
+    ? () => openSubModal() : () => openSubModal();
+  render();
+}
+
+function setPeriod(p, btn) {
+  dashPeriod = p;
+  btn.closest('.period-toggle').querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashboard();
+}
+
+/* ============================
+   RENDER
+   ============================ */
+function render() {
+  if (currentSection === 'dashboard') renderDashboard();
+  if (currentSection === 'subs') renderSubs();
+  if (currentSection === 'payments') renderPayments();
+}
+
+function renderDashboard() {
+  // Header date
+  const now = new Date();
+  document.getElementById('topbar-month').textContent =
+    now.getFullYear() + '年' + (now.getMonth()+1) + '月';
+
+  const mult = dashPeriod === 'yearly' ? 12 : 1;
+  const activeSubs = DB.subs;
+  const subTotal = activeSubs.reduce((a, s) => a + monthlyAmount(s) * mult, 0);
+  const renewCount = activeSubs.filter(s => {
+    const d = daysUntil(s.renew);
+    return d !== null && d >= 0 && d <= 30;
+  }).length;
+  const monthlyCount = activeSubs.filter(s => s.cycle === 'monthly').length;
+  const yearlyCount  = activeSubs.filter(s => s.cycle === 'yearly').length;
+
+  document.getElementById('m-sub').textContent = fmt(subTotal);
+  document.getElementById('m-renew').textContent = renewCount + '件';
+  document.getElementById('m-monthly-count').textContent = monthlyCount + '件';
+  document.getElementById('m-yearly-count').textContent = yearlyCount + '件';
+
+  // Upcoming
+  const sorted = [...activeSubs]
+    .filter(s => s.renew)
+    .map(s => ({ ...s, days: daysUntil(s.renew) }))
+    .sort((a, b) => (a.days ?? 9999) - (b.days ?? 9999));
+
+  const upEl = document.getElementById('upcoming-list');
+  if (!sorted.length) {
+    upEl.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <div class="empty-title">サブスクを登録しましょう</div>
+      <div class="empty-desc">右下の＋ボタンから追加できます</div>
+    </div>`;
+    return;
+  }
+  upEl.innerHTML = sorted.map(s => {
+    const d = new Date(s.renew);
+    const mon = (d.getMonth()+1) + '月';
+    const day = d.getDate();
+    return `<div class="upcoming-item" onclick="openSubModal('${s.id}')">
+      <div class="upcoming-date">
+        <div class="upcoming-date-day">${day}</div>
+        <div class="upcoming-date-mon">${mon}</div>
+      </div>
+      <div class="upcoming-dot" style="background:${catColor(s.cat)}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="upcoming-name">${esc(s.name)}</div>
+        <div class="upcoming-sub">${fmt(s.amount)}/${s.cycle==='monthly'?'月':'年'} · ${getPmName(s.pmId)}</div>
+      </div>
+      ${renewBadge(s.days)}
+    </div>`;
+  }).join('');
+}
+
+function renderSubs() {
+  const el = document.getElementById('subs-list');
+  const lbl = document.getElementById('subs-count-label');
+  if (!DB.subs.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔄</div>
+      <div class="empty-title">まだサブスクがありません</div>
+      <div class="empty-desc">右下の＋ボタンから追加してください</div>
+    </div>`;
+    lbl.textContent = '';
+    return;
+  }
+  const monthly = DB.subs.reduce((a,s) => a + monthlyAmount(s), 0);
+  lbl.textContent = `計 ${fmt(monthly)}/月`;
+
+  const sorted = [...DB.subs].sort((a,b) => {
+    const da = daysUntil(a.renew) ?? 9999;
+    const db2 = daysUntil(b.renew) ?? 9999;
+    return da - db2;
+  });
+  el.innerHTML = sorted.map(s => {
+    const days = daysUntil(s.renew);
+    return `<div class="sub-row" onclick="openSubModal('${s.id}')">
+      <div class="sub-emoji ${CAT_BG[s.cat]||'cat-other'}">${CAT_EMOJI[s.cat]||'📦'}</div>
+      <div class="sub-info">
+        <div class="sub-name">${esc(s.name)}</div>
+        <div class="sub-meta">
+          ${renewBadge(days)}
+          <span>${CAT_LABEL[s.cat]||'その他'}</span>
+          <span>${getPmName(s.pmId)}</span>
+          ${s.note ? `<span>📝 ${esc(s.note)}</span>` : ''}
+        </div>
+      </div>
+      <div class="sub-price">
+        <div class="sub-amount">${fmt(s.amount)}</div>
+        <div class="sub-cycle">${s.cycle==='monthly'?'/ 月':'/ 年'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPayments() {
+  const el = document.getElementById('pm-list');
+  if (!DB.paymentMethods.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">💳</div>
+      <div class="empty-title">支払い方法を登録してください</div>
+      <div class="empty-desc">下のボタンから追加できます</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = DB.paymentMethods.map(pm => {
+    const usedIn = DB.subs.filter(s => s.pmId === pm.id).length;
+    const label = pm.type === 'card'
+      ? pm.name + (pm.last4 ? ' ****'+pm.last4 : '') + ' (' + pm.brand + ')'
+      : pm.name;
+    return `<div class="pm-row">
+      <div class="pm-chip" style="background:${PM_COLORS[pm.type]||'#888'}">${PM_ICON[pm.type]||'💰'}</div>
+      <div class="pm-info">
+        <div class="pm-name">${esc(label)}</div>
+        <div class="pm-detail">${PM_LABEL[pm.type]||'その他'} · ${usedIn}件で使用中</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="deletePm('${pm.id}')">削除</button>
+    </div>`;
+  }).join('');
+}
+
+function catColor(cat) {
+  const map = {
+    video:'#2A6AFF', music:'#D85A30', cloud:'#1D9E75',
+    game:'#D4537E', work:'#7F77DD', utility:'#BA7517', other:'#888780'
+  };
+  return map[cat] || '#888780';
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ============================
+   MODAL: SUBSCRIPTION
+   ============================ */
+let editingSubId = null;
+
+function openSubModal(subId) {
+  editingSubId = subId || null;
+  const sub = subId ? DB.subs.find(s => s.id === subId) : null;
+
+  document.getElementById('sub-modal-title').textContent = sub ? 'サブスクを編集' : 'サブスクを追加';
+  document.getElementById('f-name').value   = sub ? sub.name   : '';
+  document.getElementById('f-amount').value = sub ? sub.amount : '';
+  document.getElementById('f-cycle').value  = sub ? sub.cycle  : 'monthly';
+  document.getElementById('f-cat').value    = sub ? sub.cat    : 'other';
+  document.getElementById('f-start').value  = sub ? (sub.start || '') : today();
+  document.getElementById('f-renew').value  = sub ? (sub.renew || '') : '';
+  document.getElementById('f-note').value   = sub ? (sub.note  || '') : '';
+
+  // Populate PM select
+  const pmSel = document.getElementById('f-pm');
+  pmSel.innerHTML = '<option value="">— 未設定 —</option>' +
+    DB.paymentMethods.map(pm => {
+      const lbl = pm.type === 'card'
+        ? pm.name + (pm.last4 ? ' ****'+pm.last4 : '')
+        : pm.name;
+      return `<option value="${pm.id}" ${sub && sub.pmId===pm.id?'selected':''}>${esc(lbl)}</option>`;
+    }).join('');
+
+  document.getElementById('sub-delete-zone').style.display = sub ? 'block' : 'none';
+  document.getElementById('modal-sub').classList.add('open');
+  document.getElementById('f-name').focus();
+}
+
+function saveSub() {
+  const name   = document.getElementById('f-name').value.trim();
+  const amount = parseFloat(document.getElementById('f-amount').value);
+  if (!name)   { showToast('サービス名を入力してください'); return; }
+  if (!amount || amount <= 0) { showToast('金額を正しく入力してください'); return; }
+
+  const data = {
+    name,
+    amount,
+    cycle:  document.getElementById('f-cycle').value,
+    cat:    document.getElementById('f-cat').value,
+    start:  document.getElementById('f-start').value || null,
+    renew:  document.getElementById('f-renew').value || null,
+    pmId:   document.getElementById('f-pm').value || null,
+    note:   document.getElementById('f-note').value.trim() || null,
+  };
+
+  if (editingSubId) {
+    const idx = DB.subs.findIndex(s => s.id === editingSubId);
+    if (idx >= 0) DB.subs[idx] = { ...DB.subs[idx], ...data };
+  } else {
+    DB.subs.push({ id: genId(), createdAt: today(), ...data });
+  }
+  saveData();
+  closeModal('modal-sub');
+  render();
+  showToast(editingSubId ? '更新しました' : '追加しました ✓');
+}
+
+function deleteSub() {
+  if (!editingSubId) return;
+  if (!confirm('このサブスクを削除しますか？')) return;
+  DB.subs = DB.subs.filter(s => s.id !== editingSubId);
+  saveData();
+  closeModal('modal-sub');
+  render();
+  showToast('削除しました');
+}
+
+/* ============================
+   MODAL: PAYMENT METHOD
+   ============================ */
+let pmType = 'card';
+
+function openPmModal() {
+  document.getElementById('pm-name').value = '';
+  document.getElementById('pm-last4').value = '';
+  document.getElementById('pm-other-name').value = '';
+  setPmType('card', document.querySelector('#modal-pm .seg-btn'));
+  document.getElementById('modal-pm').classList.add('open');
+}
+
+function setPmType(type, btn) {
+  pmType = type;
+  btn.closest('.segment').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pm-card-fields').style.display  = type === 'card' ? 'block' : 'none';
+  document.getElementById('pm-other-fields').style.display = type !== 'card' ? 'block' : 'none';
+  if (type !== 'card') {
+    const defaults = { paypay:'PayPay', cash:'現金', bank:'銀行口座振替', other:'' };
+    document.getElementById('pm-other-name').value = defaults[type] || '';
+  }
+}
+
+function savePm() {
+  let pm;
+  if (pmType === 'card') {
+    const name = document.getElementById('pm-name').value.trim();
+    if (!name) { showToast('カード名称を入力してください'); return; }
+    pm = {
+      id: genId(), type: 'card', name,
+      brand: document.getElementById('pm-brand').value,
+      last4: document.getElementById('pm-last4').value.trim() || null,
+    };
+  } else {
+    const name = document.getElementById('pm-other-name').value.trim();
+    if (!name) { showToast('名称を入力してください'); return; }
+    pm = { id: genId(), type: pmType, name };
+  }
+  DB.paymentMethods.push(pm);
+  saveData();
+  closeModal('modal-pm');
+  render();
+  showToast('追加しました ✓');
+}
+
+function deletePm(pmId) {
+  const usedIn = DB.subs.filter(s => s.pmId === pmId).length;
+  if (usedIn > 0) {
+    showToast(`${usedIn}件のサブスクで使用中のため削除できません`);
+    return;
+  }
+  if (!confirm('この支払い方法を削除しますか？')) return;
+  DB.paymentMethods = DB.paymentMethods.filter(p => p.id !== pmId);
+  saveData();
+  render();
+  showToast('削除しました');
+}
+
+/* ============================
+   MODAL HELPERS
+   ============================ */
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function closeModalOnBg(e, id) {
+  if (e.target.id === id) closeModal(id);
+}
+
+/* ============================
+   TOAST
+   ============================ */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ============================
+   INIT
+   ============================ */
+render();
+</script>
+</body>
+</html>
