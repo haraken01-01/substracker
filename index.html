@@ -602,7 +602,15 @@ body {
     <div id="pm-card-fields">
       <div class="form-group">
         <label class="form-label">カード名称</label>
-        <input class="form-input" id="pm-card-name" type="text" placeholder="例：楽天カード、三井住友カード">
+        <div class="autocomplete-wrap">
+          <input class="form-input" id="pm-card-name" type="text"
+            placeholder="例：楽天カード、三井住友カード"
+            autocomplete="off"
+            oninput="onCardInput()"
+            onkeydown="onCardKeydown(event)"
+            onblur="setTimeout(()=>closeCardAcList(),200)">
+          <div class="autocomplete-list" id="ac-card-list"></div>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -860,6 +868,134 @@ function closeAcList() {
   const list = document.getElementById('ac-list');
   if (list) list.classList.remove('open');
   acIndex = -1;
+}
+
+/* ============================================================
+   CARD DATABASE（予測変換候補）
+   ============================================================ */
+const CARD_DB = [
+  // 楽天
+  { name:'楽天カード',              brand:'Visa',       hint:'年会費無料・楽天ポイント' },
+  { name:'楽天プレミアムカード',    brand:'Visa',       hint:'年会費11,000円・プライオリティパス' },
+  { name:'楽天銀行デビットカード',  brand:'Visa',       hint:'楽天銀行デビット' },
+  // 三井住友
+  { name:'三井住友カード',          brand:'Visa',       hint:'ナンバーレス・年会費無料' },
+  { name:'三井住友カード ゴールド', brand:'Visa',       hint:'ゴールド・年会費5,500円' },
+  { name:'三井住友カード プラチナ', brand:'Visa',       hint:'プラチナ・年会費55,000円' },
+  // イオン
+  { name:'イオンカード',            brand:'Visa',       hint:'イオン系列で優待' },
+  { name:'イオンゴールドカード',    brand:'Visa',       hint:'ゴールド・年会費無料（招待制）' },
+  // NTTドコモ
+  { name:'dカード',                 brand:'Mastercard', hint:'ドコモポイント・年会費無料' },
+  { name:'dカード GOLD',            brand:'Mastercard', hint:'ドコモゴールド・年会費11,000円' },
+  // PayPay
+  { name:'PayPayカード',            brand:'Visa',       hint:'PayPayポイント・年会費無料' },
+  { name:'PayPayカード ゴールド',   brand:'Visa',       hint:'ゴールド・年会費11,000円' },
+  // JR東日本
+  { name:'ビューカード',            brand:'Visa',       hint:'Suicaオートチャージ' },
+  { name:'ビューゴールドプラスカード', brand:'Visa',    hint:'Suica・年会費11,000円' },
+  // エポス
+  { name:'エポスカード',            brand:'Visa',       hint:'年会費無料・マルイ優待' },
+  { name:'エポスゴールドカード',    brand:'Visa',       hint:'ゴールド・年会費無料（招待制）' },
+  { name:'エポスプラチナカード',    brand:'Visa',       hint:'プラチナ・年会費30,000円' },
+  // セゾン
+  { name:'セゾンカード',            brand:'Visa',       hint:'永久不滅ポイント' },
+  { name:'セゾンパール・アメックス', brand:'Amex',      hint:'QUICPay・年会費1,100円' },
+  { name:'セゾンゴールド・アメックス', brand:'Amex',    hint:'ゴールド・年会費11,000円' },
+  { name:'セゾンプラチナ・アメックス', brand:'Amex',   hint:'プラチナ・年会費22,000円' },
+  // オリコ
+  { name:'オリコカード THE POINT',  brand:'Mastercard', hint:'年会費無料・高還元' },
+  // リクルート
+  { name:'リクルートカード',        brand:'Visa',       hint:'年会費無料・高還元1.2%' },
+  // ライフ
+  { name:'ライフカード',            brand:'Visa',       hint:'年会費無料' },
+  // ANA
+  { name:'ANAカード',               brand:'Visa',       hint:'ANAマイル・年会費2,200円' },
+  { name:'ANA ゴールドカード',      brand:'Visa',       hint:'ANAゴールド・年会費15,400円' },
+  // JAL
+  { name:'JALカード',               brand:'Visa',       hint:'JALマイル・年会費2,200円' },
+  { name:'JAL ゴールドカード',      brand:'Visa',       hint:'JALゴールド・年会費17,600円' },
+  // アメックス
+  { name:'アメックス グリーン',     brand:'Amex',       hint:'年会費16,500円' },
+  { name:'アメックス ゴールド',     brand:'Amex',       hint:'年会費31,900円' },
+  { name:'アメックス プラチナ',     brand:'Amex',       hint:'年会費165,000円' },
+  // デビット
+  { name:'住信SBIネット銀行デビット', brand:'Visa',     hint:'デビットカード' },
+  { name:'ソニー銀行デビット',      brand:'Visa',       hint:'デビットカード・外貨優遇' },
+  { name:'GMOあおぞらネット銀行デビット', brand:'Visa', hint:'デビットカード' },
+  // その他メジャー
+  { name:'ジャックスカード',        brand:'Visa',       hint:'年会費無料' },
+  { name:'P-oneカード',             brand:'Visa',       hint:'自動1%割引' },
+  { name:'UCカード',                brand:'Visa',       hint:'年会費無料' },
+  { name:'TS CUBIC CARD',          brand:'Visa',       hint:'トヨタ・年会費無料' },
+];
+
+let cardAcIndex = -1;
+
+function onCardInput() {
+  const val = document.getElementById('pm-card-name').value.trim().toLowerCase();
+  const list = document.getElementById('ac-card-list');
+  cardAcIndex = -1;
+  if (!val) { list.classList.remove('open'); return; }
+
+  const matches = CARD_DB.filter(c =>
+    c.name.toLowerCase().includes(val)
+  ).slice(0, 7);
+
+  if (!matches.length) { list.classList.remove('open'); return; }
+
+  list.innerHTML = matches.map((c, i) =>
+    `<div class="ac-item" data-idx="${i}"
+      onmousedown="applyCard(${i})"
+      ontouchstart="applyCard(${i})">
+      <span class="ac-emoji">💳</span>
+      <div class="ac-info">
+        <div class="ac-name">${esc(c.name)}</div>
+        <div class="ac-meta">${esc(c.hint)}</div>
+      </div>
+      <span class="badge badge-gray ac-cat" style="font-size:9px">${esc(c.brand)}</span>
+    </div>`
+  ).join('');
+
+  list._matches = matches;
+  list.classList.add('open');
+}
+
+function onCardKeydown(e) {
+  const list = document.getElementById('ac-card-list');
+  const items = list.querySelectorAll('.ac-item');
+  if (!list.classList.contains('open') || !items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    cardAcIndex = Math.min(cardAcIndex + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('selected', i === cardAcIndex));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    cardAcIndex = Math.max(cardAcIndex - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('selected', i === cardAcIndex));
+  } else if (e.key === 'Enter' && cardAcIndex >= 0) {
+    e.preventDefault();
+    applyCard(cardAcIndex);
+  } else if (e.key === 'Escape') {
+    closeCardAcList();
+  }
+}
+
+function applyCard(idx) {
+  const list = document.getElementById('ac-card-list');
+  const matches = list._matches;
+  if (!matches || !matches[idx]) return;
+  const c = matches[idx];
+  document.getElementById('pm-card-name').value = c.name;
+  document.getElementById('pm-brand').value = c.brand;
+  closeCardAcList();
+  document.getElementById('pm-last4').focus();
+}
+
+function closeCardAcList() {
+  const list = document.getElementById('ac-card-list');
+  if (list) list.classList.remove('open');
+  cardAcIndex = -1;
 }
 
 // Preset categories (cannot be deleted)
@@ -1628,6 +1764,7 @@ function importData(event) {
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
   closeAcList();
+  closeCardAcList();
 }
 function closeModalOnBg(e, id) {
   if (e.target.id === id) closeModal(id);
