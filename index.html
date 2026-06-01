@@ -35,20 +35,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1c1c1a;
-    --bg2: #262624;
-    --bg3: #2f2f2c;
-    --text: #f0f0ec;
-    --text2: #a0a09c;
-    --text3: #686864;
-    --border: rgba(255,255,255,0.1);
-    --border2: rgba(255,255,255,0.18);
-    --accent-soft: #1a2d5a;
-    --danger-soft: #3a1818;
-    --warn-soft: #3a2a0a;
-    --success-soft: #1a2e0a;
-    --gray-soft: #28282a;
-    --purple-soft: #1e1a38;
+    --bg: #1c1c1a; --bg2: #262624; --bg3: #2f2f2c;
+    --text: #f0f0ec; --text2: #a0a09c; --text3: #686864;
+    --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+    --accent-soft: #1a2d5a; --danger-soft: #3a1818;
+    --warn-soft: #3a2a0a; --success-soft: #1a2e0a;
+    --gray-soft: #28282a; --purple-soft: #1e1a38;
   }
 }
 
@@ -61,257 +53,102 @@ body {
   line-height: 1.5;
 }
 
-/* Layout */
-.app-shell {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 0 16px 80px;
-}
+.app-shell { max-width: 680px; margin: 0 auto; padding: 0 16px 90px; }
 
 /* Topbar */
 .topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between;
   padding: 20px 0 16px;
   border-bottom: 0.5px solid var(--border);
   margin-bottom: 20px;
 }
-.logo {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.logo-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--accent);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
+.logo { font-size: 18px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
 /* Nav */
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--bg);
   border-top: 0.5px solid var(--border);
-  display: flex;
-  justify-content: space-around;
+  display: flex; justify-content: space-around;
   padding: 8px 0 max(8px, env(safe-area-inset-bottom));
   z-index: 100;
 }
 .nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 4px 16px;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  color: var(--text3);
-  font-size: 10px;
-  font-family: inherit;
-  transition: color 0.15s;
-  border-radius: var(--radius-sm);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 16px; cursor: pointer; border: none; background: transparent;
+  color: var(--text3); font-size: 10px; font-family: inherit;
+  transition: color 0.15s; border-radius: var(--radius-sm);
+  -webkit-tap-highlight-color: transparent;
 }
 .nav-item.active { color: var(--accent); }
 .nav-icon { font-size: 20px; line-height: 1; }
 
-/* Sections */
 .section { display: none; }
 .section.active { display: block; }
 
 /* Cards */
-.card {
-  background: var(--bg);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px 18px;
-  margin-bottom: 10px;
-}
+.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 10px; }
 
 /* Metric grid */
-.metric-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.metric-card {
-  background: var(--bg);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-}
-.metric-label {
-  font-size: 11px;
-  color: var(--text2);
-  margin-bottom: 5px;
-}
-.metric-value {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.5px;
-}
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.metric-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
+.metric-label { font-size: 11px; color: var(--text2); margin-bottom: 5px; }
+.metric-value { font-size: 22px; font-weight: 600; color: var(--text); letter-spacing: -0.5px; }
 .metric-value.accent { color: var(--accent); }
 .metric-value.danger { color: var(--danger); }
-.metric-value.warn { color: var(--warn); }
+.metric-value.warn   { color: var(--warn); }
 
 /* Section header */
-.sec-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.sec-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-}
+.sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sec-title { font-size: 16px; font-weight: 600; color: var(--text); }
 
 /* Subscription rows */
 .sub-row {
-  background: var(--bg);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 13px 15px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: border-color 0.15s;
+  background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  padding: 13px 15px; display: flex; align-items: center; gap: 12px;
+  margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .sub-row:hover { border-color: var(--border2); }
-.sub-emoji {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
+.sub-emoji { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
 .sub-info { flex: 1; min-width: 0; }
-.sub-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sub-meta {
-  font-size: 11px;
-  color: var(--text2);
-  margin-top: 3px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.sub-price {
-  text-align: right;
-  flex-shrink: 0;
-}
-.sub-amount {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-}
-.sub-cycle {
-  font-size: 10px;
-  color: var(--text2);
-  margin-top: 2px;
-}
+.sub-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sub-meta { font-size: 11px; color: var(--text2); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.sub-price { text-align: right; flex-shrink: 0; }
+.sub-amount { font-size: 15px; font-weight: 600; color: var(--text); }
+.sub-cycle { font-size: 10px; color: var(--text2); margin-top: 2px; }
 
 /* Badge */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.badge-danger { background: var(--danger-soft); color: #a32d2d; }
-.badge-warn   { background: var(--warn-soft);   color: #854f0b; }
-.badge-ok     { background: var(--success-soft); color: #27500a; }
-.badge-info   { background: var(--accent-soft);  color: #185fa5; }
-.badge-gray   { background: var(--gray-soft);    color: #5f5e5a; }
-.badge-purple { background: var(--purple-soft);  color: #3c3489; }
+.badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.badge-danger { background: #e03534; color: #fff; }
+.badge-warn   { background: #c45200; color: #fff; }
+.badge-ok     { background: #3a7a10; color: #fff; }
+.badge-info   { background: #1a5fdd; color: #fff; }
+.badge-gray   { background: #888780; color: #fff; }
 
 /* Buttons */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 9px 18px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 9px 18px; border-radius: var(--radius-md); font-size: 14px;
+  font-family: inherit; font-weight: 500; cursor: pointer; border: none;
   transition: opacity 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { opacity: 0.88; }
-.btn-ghost {
-  background: transparent;
-  color: var(--text);
-  border: 0.5px solid var(--border2);
-}
+.btn-ghost { background: transparent; color: var(--text); border: 0.5px solid var(--border2); }
 .btn-ghost:hover { background: var(--bg2); }
-.btn-danger-ghost {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border: none;
-}
+.btn-danger-ghost { background: var(--danger-soft); color: var(--danger); border: none; }
 .btn-sm { padding: 6px 13px; font-size: 12px; }
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: var(--radius-sm);
-  font-size: 18px;
-}
 
 /* FAB */
 .fab {
-  position: fixed;
-  bottom: 72px;
-  right: 20px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  font-size: 26px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 12px rgba(42,106,255,0.35);
-  z-index: 90;
+  position: fixed; bottom: 72px; right: 20px;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 26px;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(42,106,255,0.35); z-index: 90;
   transition: transform 0.15s, opacity 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
@@ -319,253 +156,138 @@ body {
 
 /* Modal */
 .modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 200;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0;
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 200;
+  align-items: flex-end; justify-content: center;
 }
 .modal-overlay.open { display: flex; }
 .modal-sheet {
-  background: var(--bg);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--bg); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 20px 20px max(24px, env(safe-area-inset-bottom));
-  width: 100%;
-  max-width: 680px;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.25s ease;
+  width: 100%; max-width: 680px; max-height: 90vh;
+  overflow-y: auto; animation: slideUp 0.25s ease;
 }
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-.modal-handle {
-  width: 36px;
-  height: 4px;
-  background: var(--bg3);
-  border-radius: 2px;
-  margin: 0 auto 18px;
-}
-.modal-title {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 18px;
-}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 36px; height: 4px; background: var(--bg3); border-radius: 2px; margin: 0 auto 18px; }
+.modal-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 18px; }
 
 /* Form */
 .form-group { margin-bottom: 14px; }
-.form-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text2);
-  margin-bottom: 5px;
-}
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; }
 .form-input, .form-select {
-  width: 100%;
-  height: 44px;
-  padding: 0 13px;
-  background: var(--bg2);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  font-size: 15px;
-  font-family: inherit;
-  appearance: none;
-  -webkit-appearance: none;
+  width: 100%; height: 44px; padding: 0 13px;
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: var(--radius-md); color: var(--text);
+  font-size: 15px; font-family: inherit;
+  appearance: none; -webkit-appearance: none;
   transition: border-color 0.15s;
 }
-.form-input:focus, .form-select:focus {
-  outline: none;
-  border-color: var(--accent);
-}
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.form-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 18px;
-}
+.form-actions { display: flex; gap: 8px; margin-top: 18px; }
 .form-actions .btn { flex: 1; height: 48px; font-size: 15px; }
 
-/* Segment control */
-.segment {
-  display: flex;
-  background: var(--bg2);
-  border-radius: var(--radius-md);
-  padding: 3px;
-  gap: 2px;
-  margin-bottom: 14px;
-}
+/* Segment */
+.segment { display: flex; background: var(--bg2); border-radius: var(--radius-md); padding: 3px; gap: 2px; margin-bottom: 14px; }
 .seg-btn {
-  flex: 1;
-  padding: 7px 4px;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
-  border: none;
-  background: transparent;
-  color: var(--text2);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s;
+  flex: 1; padding: 7px 4px; font-size: 12px; font-weight: 500; font-family: inherit;
+  border: none; background: transparent; color: var(--text2);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
 }
-.seg-btn.active {
-  background: var(--bg);
-  color: var(--text);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
+.seg-btn.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-/* Upcoming list */
+/* Upcoming */
 .upcoming-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--bg);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  margin-bottom: 7px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--bg);
+  border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  margin-bottom: 7px; cursor: pointer;
+  transition: border-color 0.15s;
 }
-.upcoming-date {
-  width: 38px;
-  text-align: center;
-  flex-shrink: 0;
-}
+.upcoming-item:hover { border-color: var(--border2); }
+.upcoming-date { width: 38px; text-align: center; flex-shrink: 0; }
 .upcoming-date-day { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
 .upcoming-date-mon { font-size: 10px; color: var(--text2); }
-.upcoming-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.upcoming-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; }
+.upcoming-date.urgent .upcoming-date-day { color: var(--danger); font-weight: 800; }
+.upcoming-date.urgent .upcoming-date-mon { color: var(--danger); }
+.upcoming-date.warn   .upcoming-date-day { color: var(--warn); }
+.upcoming-date.warn   .upcoming-date-mon { color: var(--warn); }
+.upcoming-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.upcoming-name { font-size: 13px; font-weight: 500; color: var(--text); }
 .upcoming-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
 
-/* Payment method card */
+/* Payment method row */
 .pm-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 15px;
-  background: var(--bg);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 15px; background: var(--bg);
+  border: 0.5px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px;
 }
-.pm-chip {
-  width: 44px;
-  height: 28px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: #fff;
-  flex-shrink: 0;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
+.pm-chip { width: 44px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; flex-shrink: 0; }
 .pm-info { flex: 1; }
 .pm-name { font-size: 13px; font-weight: 500; color: var(--text); }
 .pm-detail { font-size: 11px; color: var(--text2); margin-top: 2px; }
 
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text2);
+/* Category pill row (for category manager) */
+.cat-pill-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.cat-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 13px; font-weight: 500; cursor: default;
+  border: 0.5px solid var(--border);
+  background: var(--bg);
 }
+.cat-pill .cat-del {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--bg3); border: none; cursor: pointer;
+  font-size: 11px; color: var(--text2); font-family: inherit;
+  transition: background 0.15s;
+  line-height: 1;
+}
+.cat-pill .cat-del:hover { background: var(--danger-soft); color: var(--danger); }
+
+/* Period toggle */
+.period-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.period-label { font-size: 13px; color: var(--text2); }
+.period-toggle { display: flex; background: var(--bg2); border-radius: 8px; padding: 2px; gap: 2px; }
+.period-btn { padding: 4px 14px; font-size: 12px; font-weight: 500; font-family: inherit; border: none; background: transparent; color: var(--text2); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.period-btn.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+
+/* Delete zone */
+.delete-zone { margin-top: 16px; padding-top: 16px; border-top: 0.5px solid var(--border); }
+
+/* Divider */
+.divider { height: 0.5px; background: var(--border); margin: 14px 0; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text2); }
 .empty-icon { font-size: 40px; margin-bottom: 12px; }
 .empty-title { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
 .empty-desc { font-size: 13px; line-height: 1.6; }
 
-/* Period toggle */
-.period-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-.period-label { font-size: 13px; color: var(--text2); }
-.period-toggle {
-  display: flex;
-  background: var(--bg2);
-  border-radius: 8px;
-  padding: 2px;
-  gap: 2px;
-}
-.period-btn {
-  padding: 4px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  font-family: inherit;
-  border: none;
-  background: transparent;
-  color: var(--text2);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.period-btn.active {
-  background: var(--bg);
-  color: var(--text);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-}
-
-/* Delete confirm */
-.delete-zone {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 0.5px solid var(--border);
-}
+/* Section note */
+.section-note { font-size: 12px; color: var(--text2); margin-bottom: 14px; line-height: 1.6; padding: 10px 12px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); }
 
 /* Toast */
 .toast {
-  position: fixed;
-  bottom: 88px;
-  left: 50%;
+  position: fixed; bottom: 88px; left: 50%;
   transform: translateX(-50%) translateY(10px);
-  background: var(--text);
-  color: var(--bg);
-  padding: 10px 18px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  opacity: 0;
-  transition: all 0.25s;
-  z-index: 300;
-  white-space: nowrap;
-  pointer-events: none;
+  background: var(--text); color: var(--bg);
+  padding: 10px 18px; border-radius: 20px;
+  font-size: 13px; font-weight: 500;
+  opacity: 0; transition: all 0.25s; z-index: 300;
+  white-space: nowrap; pointer-events: none;
 }
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* Category colors */
-.cat-video   { background: #2A6AFF22; }
-.cat-music   { background: #D85A3022; }
-.cat-cloud   { background: #1D9E7522; }
-.cat-game    { background: #D4537E22; }
-.cat-work    { background: #7F77DD22; }
-.cat-utility { background: #BA751722; }
-.cat-other   { background: #88878022; }
-
-/* Divider */
-.divider {
-  height: 0.5px;
-  background: var(--border);
-  margin: 14px 0;
-}
-
-/* Scroll hint shadow at bottom of metric */
-.metric-card.clickable { cursor: pointer; }
-.metric-card.clickable:hover { border-color: var(--border2); }
+/* Cat backgrounds */
+.cat-bg-video   { background: #2A6AFF22; }
+.cat-bg-music   { background: #D85A3022; }
+.cat-bg-cloud   { background: #1D9E7522; }
+.cat-bg-game    { background: #D4537E22; }
+.cat-bg-work    { background: #7F77DD22; }
+.cat-bg-utility { background: #BA751722; }
+.cat-bg-custom  { background: #88878022; }
 </style>
 </head>
 <body>
@@ -590,36 +312,28 @@ body {
         <button class="period-btn" onclick="setPeriod('yearly',this)">年</button>
       </div>
     </div>
-
     <div class="metric-grid">
       <div class="metric-card">
         <div class="metric-label">サブスク合計</div>
         <div class="metric-value accent" id="m-sub">¥0</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">今月の更新</div>
+        <div class="metric-label">今月の支出目安</div>
+        <div class="metric-value accent" id="m-estimate">¥0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">30日以内の更新</div>
         <div class="metric-value warn" id="m-renew">0件</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">月払いサービス</div>
-        <div class="metric-value" id="m-monthly-count">0件</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">年払いサービス</div>
-        <div class="metric-value" id="m-yearly-count">0件</div>
+        <div class="metric-label">登録件数</div>
+        <div class="metric-value" id="m-count">0件</div>
       </div>
     </div>
-
     <div class="sec-header">
-      <span class="sec-title">更新予定</span>
+      <span class="sec-title">更新予定 <span style="font-size:12px;font-weight:400;color:var(--text2)">（30日以内）</span></span>
     </div>
-    <div id="upcoming-list">
-      <div class="empty-state">
-        <div class="empty-icon">📅</div>
-        <div class="empty-title">サブスクを登録しましょう</div>
-        <div class="empty-desc">右下の＋ボタンから追加できます</div>
-      </div>
-    </div>
+    <div id="upcoming-list"></div>
   </div>
 
   <!-- ===== SUBSCRIPTIONS ===== -->
@@ -628,13 +342,7 @@ body {
       <span class="sec-title">サブスク一覧</span>
       <span id="subs-count-label" style="font-size:12px;color:var(--text2)"></span>
     </div>
-    <div id="subs-list">
-      <div class="empty-state">
-        <div class="empty-icon">🔄</div>
-        <div class="empty-title">まだサブスクがありません</div>
-        <div class="empty-desc">右下の＋ボタンから追加してください</div>
-      </div>
-    </div>
+    <div id="subs-list"></div>
   </div>
 
   <!-- ===== PAYMENT METHODS ===== -->
@@ -642,15 +350,46 @@ body {
     <div class="sec-header">
       <span class="sec-title">支払い方法</span>
     </div>
-    <div id="pm-list">
-      <div class="empty-state">
-        <div class="empty-icon">💳</div>
-        <div class="empty-title">支払い方法を登録してください</div>
-        <div class="empty-desc">カード・PayPay・現金などを追加できます</div>
-      </div>
-    </div>
+    <div id="pm-list"></div>
     <div style="margin-top:12px">
       <button class="btn btn-ghost" style="width:100%" onclick="openPmModal()">＋ 支払い方法を追加</button>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div class="section" id="sec-settings">
+    <div class="sec-header">
+      <span class="sec-title">設定</span>
+    </div>
+
+    <!-- Category manager -->
+    <div style="margin-bottom: 24px;">
+      <div class="sec-header" style="margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600;color:var(--text)">カテゴリ管理</span>
+      </div>
+      <div class="section-note">プリセットは削除できません。カスタムカテゴリは追加・削除できます。</div>
+      <div class="cat-pill-list" id="cat-pill-list"></div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="form-input" id="new-cat-emoji" type="text" placeholder="絵文字" style="width:60px;text-align:center;padding:0 8px">
+        <input class="form-input" id="new-cat-name" type="text" placeholder="カテゴリ名（例：ニュース）" style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="addCategory()" style="white-space:nowrap">追加</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Data management -->
+    <div>
+      <div class="sec-header" style="margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600;color:var(--text)">データ管理</span>
+      </div>
+      <div class="section-note">データはこのブラウザにのみ保存されています。別のブラウザやデバイスには同期されません。</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="exportData()">📤 エクスポート（JSON）</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">📥 インポート</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
     </div>
   </div>
 
@@ -659,16 +398,16 @@ body {
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="gotoSection('dashboard',this)">
-    <span class="nav-icon">🏠</span>
-    <span>ホーム</span>
+    <span class="nav-icon">🏠</span><span>ホーム</span>
   </button>
   <button class="nav-item" onclick="gotoSection('subs',this)">
-    <span class="nav-icon">🔄</span>
-    <span>サブスク</span>
+    <span class="nav-icon">🔄</span><span>サブスク</span>
   </button>
   <button class="nav-item" onclick="gotoSection('payments',this)">
-    <span class="nav-icon">💳</span>
-    <span>支払い方法</span>
+    <span class="nav-icon">💳</span><span>支払い</span>
+  </button>
+  <button class="nav-item" onclick="gotoSection('settings',this)">
+    <span class="nav-icon">⚙️</span><span>設定</span>
   </button>
 </nav>
 
@@ -677,6 +416,7 @@ body {
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
 
 <!-- ===== MODAL: サブスク追加/編集 ===== -->
 <div class="modal-overlay" id="modal-sub" onclick="closeModalOnBg(event,'modal-sub')">
@@ -705,15 +445,7 @@ body {
 
     <div class="form-group">
       <label class="form-label">カテゴリ</label>
-      <select class="form-select" id="f-cat">
-        <option value="video">🎬 動画</option>
-        <option value="music">🎵 音楽</option>
-        <option value="cloud">☁️ クラウド</option>
-        <option value="game">🎮 ゲーム</option>
-        <option value="work">💼 仕事・学習</option>
-        <option value="utility">🔧 ユーティリティ</option>
-        <option value="other">📦 その他</option>
-      </select>
+      <select class="form-select" id="f-cat"></select>
     </div>
 
     <div class="form-row">
@@ -724,6 +456,22 @@ body {
       <div class="form-group">
         <label class="form-label">次回更新日</label>
         <input class="form-input" id="f-renew" type="date">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">自動更新</label>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="seg-btn active" id="f-autorenew-on"
+          onclick="setAutoRenew(true)"
+          style="flex:1;border:.5px solid var(--border);border-radius:var(--radius-md)">
+          🔁 自動更新あり
+        </button>
+        <button type="button" class="seg-btn" id="f-autorenew-off"
+          onclick="setAutoRenew(false)"
+          style="flex:1;border:.5px solid var(--border);border-radius:var(--radius-md)">
+          ✋ 手動更新
+        </button>
       </div>
     </div>
 
@@ -743,43 +491,55 @@ body {
       <button class="btn btn-ghost" onclick="closeModal('modal-sub')">キャンセル</button>
       <button class="btn btn-primary" onclick="saveSub()">保存</button>
     </div>
-
     <div class="delete-zone" id="sub-delete-zone" style="display:none">
       <button class="btn btn-danger-ghost" style="width:100%" onclick="deleteSub()">このサブスクを削除</button>
     </div>
   </div>
 </div>
 
-<!-- ===== MODAL: 支払い方法 ===== -->
+
+<!-- ===== MODAL: 支払い方法追加 ===== -->
 <div class="modal-overlay" id="modal-pm" onclick="closeModalOnBg(event,'modal-pm')">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title">支払い方法を追加</div>
 
+    <!-- よく使う: PayPay quick-add -->
+    <div class="form-group">
+      <label class="form-label">よく使う</label>
+      <button class="btn btn-ghost btn-sm" onclick="addPayPay()" style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:18px">📱</span> PayPayをワンタップで追加
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 種別 4択 -->
     <div class="form-group">
       <label class="form-label">種別</label>
-      <div class="segment">
-        <button class="seg-btn active" onclick="setPmType('card',this)">カード</button>
-        <button class="seg-btn" onclick="setPmType('paypay',this)">PayPay</button>
-        <button class="seg-btn" onclick="setPmType('cash',this)">現金</button>
-        <button class="seg-btn" onclick="setPmType('bank',this)">口座振替</button>
-        <button class="seg-btn" onclick="setPmType('other',this)">その他</button>
+      <div class="segment" id="pm-type-seg">
+        <button class="seg-btn active" onclick="setPmType('card',this)">💳 カード</button>
+        <button class="seg-btn" onclick="setPmType('cash',this)">💴 現金</button>
+        <button class="seg-btn" onclick="setPmType('bank',this)">🏦 口座振替</button>
+        <button class="seg-btn" onclick="setPmType('other',this)">📦 その他</button>
       </div>
     </div>
 
+    <!-- カード入力欄 -->
     <div id="pm-card-fields">
       <div class="form-group">
         <label class="form-label">カード名称</label>
-        <input class="form-input" id="pm-name" type="text" placeholder="楽天カード、三井住友カード など">
+        <input class="form-input" id="pm-card-name" type="text" placeholder="例：楽天カード、三井住友カード">
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">ブランド</label>
           <select class="form-select" id="pm-brand">
             <option value="Visa">Visa</option>
-            <option value="MC">Mastercard</option>
+            <option value="Mastercard">Mastercard</option>
             <option value="JCB">JCB</option>
             <option value="Amex">Amex</option>
+            <option value="その他">その他</option>
           </select>
         </div>
         <div class="form-group">
@@ -789,10 +549,16 @@ body {
       </div>
     </div>
 
+    <!-- 現金・口座振替：追加ボタンのみ（名称固定） -->
+    <div id="pm-fixed-fields" style="display:none">
+      <div class="section-note" id="pm-fixed-note"></div>
+    </div>
+
+    <!-- その他：自由記入 -->
     <div id="pm-other-fields" style="display:none">
       <div class="form-group">
         <label class="form-label">名称</label>
-        <input class="form-input" id="pm-other-name" type="text" placeholder="PayPay, Suica など">
+        <input class="form-input" id="pm-other-name" type="text" placeholder="例：Suica、nanaco、d払い">
       </div>
     </div>
 
@@ -803,17 +569,49 @@ body {
   </div>
 </div>
 
+
 <script>
-/* ============================
-   DATA MODEL & STORAGE
-   ============================ */
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
 const STORAGE_KEY = 'substracker_v1';
 
+// Preset categories (cannot be deleted)
+const PRESET_CATS = [
+  { id:'video',   emoji:'🎬', label:'動画',       color:'#2A6AFF', preset:true },
+  { id:'music',   emoji:'🎵', label:'音楽',       color:'#D85A30', preset:true },
+  { id:'cloud',   emoji:'☁️', label:'クラウド',   color:'#1D9E75', preset:true },
+  { id:'game',    emoji:'🎮', label:'ゲーム',     color:'#D4537E', preset:true },
+  { id:'work',    emoji:'💼', label:'仕事・学習', color:'#7F77DD', preset:true },
+  { id:'utility', emoji:'🔧', label:'ユーティリティ', color:'#BA7517', preset:true },
+  { id:'other',   emoji:'📦', label:'その他',     color:'#888780', preset:true },
+];
+
+// Payment method type config
+const PM_TYPE_COLORS = {
+  card:'#2A6AFF', cash:'#888780', bank:'#1D9E75', other:'#7F77DD'
+};
+const PM_TYPE_ICONS = {
+  card:'💳', cash:'💴', bank:'🏦', other:'📦'
+};
+const PM_TYPE_LABELS = {
+  card:'クレジット / デビットカード',
+  cash:'現金',
+  bank:'口座振替',
+  other:'その他'
+};
+
+/* ============================================================
+   DATA
+   ============================================================ */
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultData();
-    return JSON.parse(raw);
+    const d = JSON.parse(raw);
+    // migrate: ensure customCategories exists
+    if (!d.customCategories) d.customCategories = [];
+    return d;
   } catch(e) { return defaultData(); }
 }
 
@@ -822,21 +620,26 @@ function saveData() {
 }
 
 function defaultData() {
-  return { subs: [], paymentMethods: [], version: 1 };
+  return { subs: [], paymentMethods: [], customCategories: [], version: 1 };
 }
 
 let DB = loadData();
 
-/* ============================
-   UTILITIES
-   ============================ */
-function fmt(n) {
-  return '¥' + Math.round(n).toLocaleString('ja-JP');
+// All categories = presets + custom
+function allCats() {
+  return [...PRESET_CATS, ...(DB.customCategories || [])];
 }
 
-function today() {
-  return new Date().toISOString().split('T')[0];
+function getCat(id) {
+  return allCats().find(c => c.id === id) || PRESET_CATS.find(c => c.id === 'other');
 }
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function fmt(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
+function today() { return new Date().toISOString().split('T')[0]; }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
 function daysUntil(dateStr) {
   if (!dateStr) return null;
@@ -849,30 +652,6 @@ function monthlyAmount(sub) {
   return sub.cycle === 'yearly' ? Math.round(sub.amount / 12) : sub.amount;
 }
 
-const CAT_EMOJI = {
-  video:'🎬', music:'🎵', cloud:'☁️',
-  game:'🎮', work:'💼', utility:'🔧', other:'📦'
-};
-const CAT_LABEL = {
-  video:'動画', music:'音楽', cloud:'クラウド',
-  game:'ゲーム', work:'仕事・学習', utility:'ユーティリティ', other:'その他'
-};
-const CAT_BG = {
-  video:'cat-video', music:'cat-music', cloud:'cat-cloud',
-  game:'cat-game', work:'cat-work', utility:'cat-utility', other:'cat-other'
-};
-const PM_COLORS = {
-  card:'#2A6AFF', paypay:'#E24B4A', cash:'#888780',
-  bank:'#1D9E75', other:'#7F77DD'
-};
-const PM_LABEL = {
-  card:'カード', paypay:'PayPay', cash:'現金',
-  bank:'口座振替', other:'その他'
-};
-const PM_ICON = {
-  card:'💳', paypay:'📱', cash:'💴', bank:'🏦', other:'💰'
-};
-
 function getPmName(pmId) {
   if (!pmId) return '未設定';
   const pm = DB.paymentMethods.find(p => p.id === pmId);
@@ -881,22 +660,64 @@ function getPmName(pmId) {
   return pm.name;
 }
 
-function renewBadge(days) {
+function renewBadge(days, sub) {
   if (days === null) return '';
-  if (days < 0)  return `<span class="badge badge-danger">${-days}日超過</span>`;
+  const autoRenew = sub?.autoRenew !== false; // デフォルトtrue
+
+  if (days < 0) {
+    if (autoRenew) {
+      // 自動更新: バッジには次回更新までの日数を表示（表示上は正常）
+      return ''; // 日数リセット済みなのでバッジ不要
+    } else {
+      // 手動更新: 期限切れ表示
+      const expiredDate = sub?.renew ? sub.renew.replaceAll('-', '/') : '';
+      const label = expiredDate ? `期限切れ ${expiredDate}` : '期限切れ';
+      return `<span class="badge badge-danger">${label}</span>`;
+    }
+  }
   if (days === 0) return `<span class="badge badge-danger">今日</span>`;
   if (days <= 7)  return `<span class="badge badge-warn">${days}日後</span>`;
   if (days <= 30) return `<span class="badge badge-info">${days}日後</span>`;
-  return `<span class="badge badge-ok">正常</span>`;
+  return '';
 }
 
-function genId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+// 自動更新ONで更新日が過ぎている場合、次の更新日を計算して返す
+function effectiveRenewDate(sub) {
+  if (!sub.renew) return null;
+  const autoRenew = sub.autoRenew !== false;
+  if (!autoRenew) return sub.renew;
+
+  let d = new Date(sub.renew);
+  const now = new Date(); now.setHours(0,0,0,0);
+  if (d >= now) return sub.renew;
+
+  // 更新日を繰り上げる
+  if (sub.cycle === 'monthly') {
+    while (d < now) d.setMonth(d.getMonth() + 1);
+  } else {
+    while (d < now) d.setFullYear(d.getFullYear() + 1);
+  }
+  return d.toISOString().split('T')[0];
 }
 
-/* ============================
+function dateCls(days, sub) {
+  if (days === null) return '';
+  const autoRenew = sub?.autoRenew !== false;
+  if (days < 0 && autoRenew) return ''; // 自動更新済みなので強調不要
+  if (days <= 7)  return 'urgent';
+  if (days <= 30) return 'warn';
+  return '';
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ============================================================
    NAVIGATION
-   ============================ */
+   ============================================================ */
 let currentSection = 'dashboard';
 let dashPeriod = 'monthly';
 
@@ -906,86 +727,106 @@ function gotoSection(id, btn) {
   document.getElementById('sec-' + id).classList.add('active');
   btn.classList.add('active');
   currentSection = id;
-  document.getElementById('fab-btn').style.display = (id === 'payments') ? 'none' : 'flex';
-  document.getElementById('fab-btn').onclick = (id === 'subs')
-    ? () => openSubModal() : () => openSubModal();
+  // FAB: hide on settings page
+  const fab = document.getElementById('fab-btn');
+  fab.style.display = (id === 'payments' || id === 'settings') ? 'none' : 'flex';
   render();
 }
 
 function setPeriod(p, btn) {
   dashPeriod = p;
-  btn.closest('.period-toggle').querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.period-toggle').querySelectorAll('.period-btn')
+    .forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderDashboard();
 }
 
-/* ============================
+/* ============================================================
    RENDER
-   ============================ */
+   ============================================================ */
 function render() {
   if (currentSection === 'dashboard') renderDashboard();
-  if (currentSection === 'subs') renderSubs();
-  if (currentSection === 'payments') renderPayments();
+  if (currentSection === 'subs')      renderSubs();
+  if (currentSection === 'payments')  renderPayments();
+  if (currentSection === 'settings')  renderSettings();
 }
 
+/* --- DASHBOARD --- */
 function renderDashboard() {
-  // Header date
   const now = new Date();
   document.getElementById('topbar-month').textContent =
     now.getFullYear() + '年' + (now.getMonth()+1) + '月';
 
   const mult = dashPeriod === 'yearly' ? 12 : 1;
-  const activeSubs = DB.subs;
-  const subTotal = activeSubs.reduce((a, s) => a + monthlyAmount(s) * mult, 0);
-  const renewCount = activeSubs.filter(s => {
-    const d = daysUntil(s.renew);
+  const subs = DB.subs;
+
+  // サブスク合計（月換算ベース × 表示期間倍率）
+  const subTotal = subs.reduce((a, s) => a + monthlyAmount(s) * mult, 0);
+
+  // 今月の支出目安 = 月払い合計 + 年払いの月割換算合計（常に月ベース）
+  const monthlyEstimate = subs.reduce((a, s) => a + monthlyAmount(s), 0);
+
+  const renewCount = subs.filter(s => {
+    const eff = effectiveRenewDate(s);
+    const d = daysUntil(eff);
     return d !== null && d >= 0 && d <= 30;
   }).length;
-  const monthlyCount = activeSubs.filter(s => s.cycle === 'monthly').length;
-  const yearlyCount  = activeSubs.filter(s => s.cycle === 'yearly').length;
 
-  document.getElementById('m-sub').textContent = fmt(subTotal);
-  document.getElementById('m-renew').textContent = renewCount + '件';
-  document.getElementById('m-monthly-count').textContent = monthlyCount + '件';
-  document.getElementById('m-yearly-count').textContent = yearlyCount + '件';
+  document.getElementById('m-sub').textContent      = fmt(subTotal);
+  document.getElementById('m-estimate').textContent = fmt(monthlyEstimate);
+  document.getElementById('m-renew').textContent    = renewCount + '件';
+  document.getElementById('m-count').textContent    = subs.length + '件';
 
-  // Upcoming
-  const sorted = [...activeSubs]
+  // Upcoming: 30日以内 + 手動更新で期限切れのもの
+  const upcoming = subs
     .filter(s => s.renew)
-    .map(s => ({ ...s, days: daysUntil(s.renew) }))
-    .sort((a, b) => (a.days ?? 9999) - (b.days ?? 9999));
+    .map(s => {
+      const effDate = effectiveRenewDate(s);
+      return { ...s, effDate, days: daysUntil(effDate) };
+    })
+    .filter(s => {
+      if (s.days === null) return false;
+      if (s.days <= 30) return true;                      // 30日以内は常に表示
+      const autoRenew = s.autoRenew !== false;
+      return !autoRenew && s.days < 0;                    // 手動更新の期限切れも表示
+    })
+    .sort((a, b) => a.days - b.days);                     // 期限切れ（負の値）が先頭に
 
   const upEl = document.getElementById('upcoming-list');
-  if (!sorted.length) {
+  if (!upcoming.length) {
+    const hasAny = subs.some(s => s.renew);
     upEl.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📅</div>
-      <div class="empty-title">サブスクを登録しましょう</div>
-      <div class="empty-desc">右下の＋ボタンから追加できます</div>
+      <div class="empty-icon">${hasAny ? '✅' : '📅'}</div>
+      <div class="empty-title">${hasAny ? '30日以内の更新予定はありません' : 'サブスクを登録しましょう'}</div>
+      <div class="empty-desc">${hasAny ? '次の更新が近づいたらここに表示されます' : '右下の＋ボタンから追加できます'}</div>
     </div>`;
     return;
   }
-  upEl.innerHTML = sorted.map(s => {
-    const d = new Date(s.renew);
-    const mon = (d.getMonth()+1) + '月';
-    const day = d.getDate();
-    return `<div class="upcoming-item" onclick="openSubModal('${s.id}')">
-      <div class="upcoming-date">
-        <div class="upcoming-date-day">${day}</div>
-        <div class="upcoming-date-mon">${mon}</div>
+
+  upEl.innerHTML = upcoming.map(s => {
+    const cat = getCat(s.cat);
+    const d = new Date(s.effDate);
+    const isExpired = s.days < 0 && s.autoRenew === false;
+    return `<div class="upcoming-item" style="${isExpired ? 'border-color:#e03534;background:var(--danger-soft)' : ''}" onclick="openSubModal('${s.id}')">
+      <div class="upcoming-date ${dateCls(s.days, s)}">
+        <div class="upcoming-date-day">${d.getDate()}</div>
+        <div class="upcoming-date-mon">${d.getMonth()+1}月</div>
       </div>
-      <div class="upcoming-dot" style="background:${catColor(s.cat)}"></div>
+      <div class="upcoming-dot" style="background:${cat.color}"></div>
       <div style="flex:1;min-width:0">
         <div class="upcoming-name">${esc(s.name)}</div>
-        <div class="upcoming-sub">${fmt(s.amount)}/${s.cycle==='monthly'?'月':'年'} · ${getPmName(s.pmId)}</div>
+        <div class="upcoming-sub">${fmt(s.amount)}/${s.cycle==='monthly'?'月':'年'} · ${esc(getPmName(s.pmId))}</div>
       </div>
-      ${renewBadge(s.days)}
+      ${renewBadge(s.days, s)}
     </div>`;
   }).join('');
 }
 
+/* --- SUBSCRIPTIONS --- */
 function renderSubs() {
-  const el = document.getElementById('subs-list');
+  const el  = document.getElementById('subs-list');
   const lbl = document.getElementById('subs-count-label');
+
   if (!DB.subs.length) {
     el.innerHTML = `<div class="empty-state">
       <div class="empty-icon">🔄</div>
@@ -995,35 +836,50 @@ function renderSubs() {
     lbl.textContent = '';
     return;
   }
-  const monthly = DB.subs.reduce((a,s) => a + monthlyAmount(s), 0);
+
+  const monthly = DB.subs.reduce((a, s) => a + monthlyAmount(s), 0);
   lbl.textContent = `計 ${fmt(monthly)}/月`;
 
-  const sorted = [...DB.subs].sort((a,b) => {
-    const da = daysUntil(a.renew) ?? 9999;
-    const db2 = daysUntil(b.renew) ?? 9999;
-    return da - db2;
+  const sorted = [...DB.subs].sort((a, b) => {
+    const da = daysUntil(effectiveRenewDate(a)) ?? 9999;
+    const db = daysUntil(effectiveRenewDate(b)) ?? 9999;
+    return da - db;
   });
+
   el.innerHTML = sorted.map(s => {
-    const days = daysUntil(s.renew);
+    const cat      = getCat(s.cat);
+    const effDate  = effectiveRenewDate(s);
+    const days     = daysUntil(effDate);
+    const autoRenew = s.autoRenew !== false;
+    // 表示する更新日：自動更新なら次回日、手動なら登録日のまま
+    const renewStr = effDate ? effDate.replaceAll('-', '/') : '';
+    const autoTag  = autoRenew
+      ? `<span style="font-size:10px;color:var(--text2)">🔁</span>`
+      : `<span style="font-size:10px;color:var(--text2)">✋</span>`;
     return `<div class="sub-row" onclick="openSubModal('${s.id}')">
-      <div class="sub-emoji ${CAT_BG[s.cat]||'cat-other'}">${CAT_EMOJI[s.cat]||'📦'}</div>
+      <div class="sub-emoji" style="background:${cat.color}22">${cat.emoji}</div>
       <div class="sub-info">
         <div class="sub-name">${esc(s.name)}</div>
         <div class="sub-meta">
-          ${renewBadge(days)}
-          <span>${CAT_LABEL[s.cat]||'その他'}</span>
-          <span>${getPmName(s.pmId)}</span>
+          ${renewBadge(days, s)}
+          ${autoTag}
+          <span>${esc(cat.label)}</span>
+          <span>${esc(getPmName(s.pmId))}</span>
           ${s.note ? `<span>📝 ${esc(s.note)}</span>` : ''}
         </div>
       </div>
-      <div class="sub-price">
+      <div class="sub-price" style="display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:2px;align-self:stretch">
         <div class="sub-amount">${fmt(s.amount)}</div>
-        <div class="sub-cycle">${s.cycle==='monthly'?'/ 月':'/ 年'}</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          ${renewStr ? `<div style="font-size:10px;color:var(--text2)">${renewStr}</div>` : ''}
+          <div class="sub-cycle">${s.cycle==='monthly'?'/ 月':'/ 年'}</div>
+        </div>
       </div>
     </div>`;
   }).join('');
 }
 
+/* --- PAYMENTS --- */
 function renderPayments() {
   const el = document.getElementById('pm-list');
   if (!DB.paymentMethods.length) {
@@ -1036,60 +892,121 @@ function renderPayments() {
   }
   el.innerHTML = DB.paymentMethods.map(pm => {
     const usedIn = DB.subs.filter(s => s.pmId === pm.id).length;
-    const label = pm.type === 'card'
-      ? pm.name + (pm.last4 ? ' ****'+pm.last4 : '') + ' (' + pm.brand + ')'
-      : pm.name;
+    let label = pm.name;
+    if (pm.type === 'card') {
+      label = pm.name;
+      if (pm.brand) label += ' (' + pm.brand + ')';
+      if (pm.last4) label += ' ****' + pm.last4;
+    }
+    const color = pm.color || PM_TYPE_COLORS[pm.type] || '#888';
+    const icon  = pm.icon  || PM_TYPE_ICONS[pm.type]  || '📦';
+    const typeLabel = PM_TYPE_LABELS[pm.type] || 'その他';
     return `<div class="pm-row">
-      <div class="pm-chip" style="background:${PM_COLORS[pm.type]||'#888'}">${PM_ICON[pm.type]||'💰'}</div>
+      <div class="pm-chip" style="background:${color}">${icon}</div>
       <div class="pm-info">
         <div class="pm-name">${esc(label)}</div>
-        <div class="pm-detail">${PM_LABEL[pm.type]||'その他'} · ${usedIn}件で使用中</div>
+        <div class="pm-detail">${typeLabel} · ${usedIn}件で使用中</div>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="deletePm('${pm.id}')">削除</button>
     </div>`;
   }).join('');
 }
 
-function catColor(cat) {
-  const map = {
-    video:'#2A6AFF', music:'#D85A30', cloud:'#1D9E75',
-    game:'#D4537E', work:'#7F77DD', utility:'#BA7517', other:'#888780'
-  };
-  return map[cat] || '#888780';
+/* --- SETTINGS --- */
+function renderSettings() {
+  const list = document.getElementById('cat-pill-list');
+  list.innerHTML = allCats().map(cat => {
+    const delBtn = cat.preset
+      ? ''
+      : `<button class="cat-del" onclick="deleteCategory('${cat.id}')" title="削除">×</button>`;
+    return `<div class="cat-pill" style="border-color:${cat.color}20;background:${cat.color}14">
+      <span>${cat.emoji}</span>
+      <span style="color:${cat.preset ? 'var(--text2)' : 'var(--text)'}">${esc(cat.label)}</span>
+      ${delBtn}
+    </div>`;
+  }).join('');
 }
 
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* ============================================================
+   CATEGORY MANAGEMENT
+   ============================================================ */
+function addCategory() {
+  const emojiEl = document.getElementById('new-cat-emoji');
+  const nameEl  = document.getElementById('new-cat-name');
+  const emoji = emojiEl.value.trim() || '🏷️';
+  const label = nameEl.value.trim();
+  if (!label) { showToast('カテゴリ名を入力してください'); return; }
+  if (allCats().some(c => c.label === label)) {
+    showToast('同じ名前のカテゴリがすでにあります'); return;
+  }
+  const id = 'custom_' + genId();
+  DB.customCategories.push({ id, emoji, label, color:'#888780', preset:false });
+  saveData();
+  emojiEl.value = '';
+  nameEl.value  = '';
+  renderSettings();
+  showToast('カテゴリを追加しました ✓');
 }
 
-/* ============================
+function deleteCategory(id) {
+  const usedIn = DB.subs.filter(s => s.cat === id).length;
+  if (usedIn > 0) {
+    showToast(`${usedIn}件のサブスクで使用中のため削除できません`);
+    return;
+  }
+  DB.customCategories = DB.customCategories.filter(c => c.id !== id);
+  saveData();
+  renderSettings();
+  showToast('削除しました');
+}
+
+/* ============================================================
    MODAL: SUBSCRIPTION
-   ============================ */
+   ============================================================ */
 let editingSubId = null;
+let formAutoRenew = true;
+
+function setAutoRenew(val) {
+  formAutoRenew = val;
+  document.getElementById('f-autorenew-on').classList.toggle('active',  val);
+  document.getElementById('f-autorenew-off').classList.toggle('active', !val);
+}
 
 function openSubModal(subId) {
   editingSubId = subId || null;
   const sub = subId ? DB.subs.find(s => s.id === subId) : null;
 
-  document.getElementById('sub-modal-title').textContent = sub ? 'サブスクを編集' : 'サブスクを追加';
-  document.getElementById('f-name').value   = sub ? sub.name   : '';
-  document.getElementById('f-amount').value = sub ? sub.amount : '';
-  document.getElementById('f-cycle').value  = sub ? sub.cycle  : 'monthly';
-  document.getElementById('f-cat').value    = sub ? sub.cat    : 'other';
-  document.getElementById('f-start').value  = sub ? (sub.start || '') : today();
-  document.getElementById('f-renew').value  = sub ? (sub.renew || '') : '';
-  document.getElementById('f-note').value   = sub ? (sub.note  || '') : '';
+  document.getElementById('sub-modal-title').textContent =
+    sub ? 'サブスクを編集' : 'サブスクを追加';
 
-  // Populate PM select
+  document.getElementById('f-name').value   = sub?.name   ?? '';
+  document.getElementById('f-amount').value = sub?.amount ?? '';
+  document.getElementById('f-cycle').value  = sub?.cycle  ?? 'monthly';
+  document.getElementById('f-start').value  = sub?.start  ?? today();
+  document.getElementById('f-renew').value  = sub?.renew  ?? '';
+  document.getElementById('f-note').value   = sub?.note   ?? '';
+
+  // Auto renew toggle
+  formAutoRenew = sub ? (sub.autoRenew !== false) : true;
+  setAutoRenew(formAutoRenew);
+
+  // Build category select dynamically
+  const catSel = document.getElementById('f-cat');
+  catSel.innerHTML = allCats().map(cat =>
+    `<option value="${cat.id}" ${sub?.cat===cat.id?'selected':''}>
+      ${cat.emoji} ${esc(cat.label)}
+    </option>`
+  ).join('');
+  if (!sub) catSel.value = 'other';
+
+  // Build payment method select
   const pmSel = document.getElementById('f-pm');
   pmSel.innerHTML = '<option value="">— 未設定 —</option>' +
     DB.paymentMethods.map(pm => {
       const lbl = pm.type === 'card'
         ? pm.name + (pm.last4 ? ' ****'+pm.last4 : '')
         : pm.name;
-      return `<option value="${pm.id}" ${sub && sub.pmId===pm.id?'selected':''}>${esc(lbl)}</option>`;
+      return `<option value="${pm.id}" ${sub?.pmId===pm.id?'selected':''}>${esc(lbl)}</option>`;
     }).join('');
 
   document.getElementById('sub-delete-zone').style.display = sub ? 'block' : 'none';
@@ -1100,18 +1017,18 @@ function openSubModal(subId) {
 function saveSub() {
   const name   = document.getElementById('f-name').value.trim();
   const amount = parseFloat(document.getElementById('f-amount').value);
-  if (!name)   { showToast('サービス名を入力してください'); return; }
-  if (!amount || amount <= 0) { showToast('金額を正しく入力してください'); return; }
+  if (!name)               { showToast('サービス名を入力してください'); return; }
+  if (!amount || amount<=0){ showToast('金額を正しく入力してください'); return; }
 
   const data = {
-    name,
-    amount,
-    cycle:  document.getElementById('f-cycle').value,
-    cat:    document.getElementById('f-cat').value,
-    start:  document.getElementById('f-start').value || null,
-    renew:  document.getElementById('f-renew').value || null,
-    pmId:   document.getElementById('f-pm').value || null,
-    note:   document.getElementById('f-note').value.trim() || null,
+    name, amount,
+    cycle:      document.getElementById('f-cycle').value,
+    cat:        document.getElementById('f-cat').value,
+    start:      document.getElementById('f-start').value || null,
+    renew:      document.getElementById('f-renew').value || null,
+    pmId:       document.getElementById('f-pm').value    || null,
+    note:       document.getElementById('f-note').value.trim() || null,
+    autoRenew:  formAutoRenew,
   };
 
   if (editingSubId) {
@@ -1123,7 +1040,7 @@ function saveSub() {
   saveData();
   closeModal('modal-sub');
   render();
-  showToast(editingSubId ? '更新しました' : '追加しました ✓');
+  showToast(editingSubId ? '更新しました ✓' : '追加しました ✓');
 }
 
 function deleteSub() {
@@ -1136,47 +1053,93 @@ function deleteSub() {
   showToast('削除しました');
 }
 
-/* ============================
+/* ============================================================
    MODAL: PAYMENT METHOD
-   ============================ */
+   ============================================================ */
 let pmType = 'card';
 
 function openPmModal() {
-  document.getElementById('pm-name').value = '';
-  document.getElementById('pm-last4').value = '';
+  pmType = 'card';
+  document.getElementById('pm-card-name').value  = '';
+  document.getElementById('pm-last4').value      = '';
   document.getElementById('pm-other-name').value = '';
-  setPmType('card', document.querySelector('#modal-pm .seg-btn'));
+  document.getElementById('pm-brand').value      = 'Visa';
+  // Reset segment to first button
+  document.getElementById('pm-type-seg')
+    .querySelectorAll('.seg-btn')
+    .forEach((b, i) => b.classList.toggle('active', i === 0));
+  togglePmFields();
   document.getElementById('modal-pm').classList.add('open');
+}
+
+/* PayPay one-tap */
+function addPayPay() {
+  if (DB.paymentMethods.some(p => p.name === 'PayPay')) {
+    showToast('PayPayはすでに登録されています');
+    return;
+  }
+  DB.paymentMethods.push({
+    id: genId(), type: 'other', name: 'PayPay',
+    icon: '📱', color: '#E24B4A',
+  });
+  saveData();
+  closeModal('modal-pm');
+  render();
+  showToast('PayPayを追加しました ✓');
 }
 
 function setPmType(type, btn) {
   pmType = type;
-  btn.closest('.segment').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.segment').querySelectorAll('.seg-btn')
+    .forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('pm-card-fields').style.display  = type === 'card' ? 'block' : 'none';
-  document.getElementById('pm-other-fields').style.display = type !== 'card' ? 'block' : 'none';
-  if (type !== 'card') {
-    const defaults = { paypay:'PayPay', cash:'現金', bank:'銀行口座振替', other:'' };
-    document.getElementById('pm-other-name').value = defaults[type] || '';
-  }
+  togglePmFields();
+}
+
+function togglePmFields() {
+  document.getElementById('pm-card-fields').style.display  = pmType === 'card'  ? 'block' : 'none';
+  document.getElementById('pm-fixed-fields').style.display = (pmType === 'cash' || pmType === 'bank') ? 'block' : 'none';
+  document.getElementById('pm-other-fields').style.display = pmType === 'other' ? 'block' : 'none';
+
+  // Show note for fixed types
+  const noteEl = document.getElementById('pm-fixed-note');
+  if (pmType === 'cash')  noteEl.textContent = '「現金」として登録されます。';
+  if (pmType === 'bank')  noteEl.textContent = '「口座振替」として登録されます。';
 }
 
 function savePm() {
-  let pm;
-  if (pmType === 'card') {
-    const name = document.getElementById('pm-name').value.trim();
+  // Duplicate check for fixed types
+  if (pmType === 'cash' || pmType === 'bank') {
+    const fixedName = pmType === 'cash' ? '現金' : '口座振替';
+    if (DB.paymentMethods.some(p => p.name === fixedName)) {
+      showToast(`「${fixedName}」はすでに登録されています`);
+      return;
+    }
+    DB.paymentMethods.push({
+      id: genId(), type: pmType, name: fixedName,
+      icon:  PM_TYPE_ICONS[pmType],
+      color: PM_TYPE_COLORS[pmType],
+    });
+  } else if (pmType === 'card') {
+    const name = document.getElementById('pm-card-name').value.trim();
     if (!name) { showToast('カード名称を入力してください'); return; }
-    pm = {
+    DB.paymentMethods.push({
       id: genId(), type: 'card', name,
       brand: document.getElementById('pm-brand').value,
       last4: document.getElementById('pm-last4').value.trim() || null,
-    };
+      icon:  PM_TYPE_ICONS.card,
+      color: PM_TYPE_COLORS.card,
+    });
   } else {
+    // other
     const name = document.getElementById('pm-other-name').value.trim();
     if (!name) { showToast('名称を入力してください'); return; }
-    pm = { id: genId(), type: pmType, name };
+    DB.paymentMethods.push({
+      id: genId(), type: 'other', name,
+      icon:  PM_TYPE_ICONS.other,
+      color: PM_TYPE_COLORS.other,
+    });
   }
-  DB.paymentMethods.push(pm);
   saveData();
   closeModal('modal-pm');
   render();
@@ -1196,32 +1159,67 @@ function deletePm(pmId) {
   showToast('削除しました');
 }
 
-/* ============================
+/* ============================================================
+   DATA EXPORT / IMPORT
+   ============================================================ */
+function exportData() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'substracker_backup_' + today() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('エクスポートしました');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.subs || !data.paymentMethods) throw new Error('invalid');
+      if (!confirm('現在のデータを上書きしてインポートしますか？')) return;
+      DB = data;
+      if (!DB.customCategories) DB.customCategories = [];
+      saveData();
+      render();
+      showToast('インポートしました ✓');
+    } catch {
+      showToast('ファイルの形式が正しくありません');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+/* ============================================================
    MODAL HELPERS
-   ============================ */
+   ============================================================ */
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
-
 function closeModalOnBg(e, id) {
   if (e.target.id === id) closeModal(id);
 }
 
-/* ============================
+/* ============================================================
    TOAST
-   ============================ */
+   ============================================================ */
 let toastTimer;
 function showToast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
 }
 
-/* ============================
+/* ============================================================
    INIT
-   ============================ */
+   ============================================================ */
 render();
 </script>
 </body>
