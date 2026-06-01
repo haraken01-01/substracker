@@ -478,7 +478,7 @@ body {
     <!-- 支払いサイクル -->
     <div class="form-group">
       <label class="form-label">支払いサイクル</label>
-      <select class="form-select" id="f-cycle" onchange="autoFillRenew()">
+      <select class="form-select" id="f-cycle" onchange="autoFillRenew()" onblur="autoFillRenew()">
         <option value="monthly">月払い</option>
         <option value="yearly">年払い</option>
       </select>
@@ -492,7 +492,7 @@ body {
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">加入日</label>
-        <input class="form-input" id="f-start" type="date" onchange="autoFillRenew()" oninput="autoFillRenew()">
+        <input class="form-input" id="f-start" type="date" onchange="autoFillRenewDelayed()" oninput="autoFillRenewDelayed()" onblur="autoFillRenew()">
       </div>
       <div class="form-group">
         <label class="form-label">次回更新日</label>
@@ -1168,19 +1168,26 @@ function setAutoRenew(val) {
 // 加入日 or サイクルが変わったとき、自動更新ONなら次回更新日を自動入力
 function autoFillRenew() {
   if (!formAutoRenew) return;
+  if (editingSubId) return;
   const startVal = document.getElementById('f-start').value;
   if (!startVal) return;
-  // 次回更新日が手動入力済みの場合は上書きしない（新規登録時のみ）
-  if (editingSubId) return;
 
   const cycle = document.getElementById('f-cycle').value;
   const d = new Date(startVal);
+  if (isNaN(d.getTime())) return;
   if (cycle === 'yearly') {
     d.setFullYear(d.getFullYear() + 1);
   } else {
     d.setMonth(d.getMonth() + 1);
   }
   document.getElementById('f-renew').value = d.toISOString().split('T')[0];
+}
+
+// iOS Safari用: dateピッカーの「完了」後に遅延して再チェック
+function autoFillRenewDelayed() {
+  autoFillRenew();
+  setTimeout(autoFillRenew, 300);
+  setTimeout(autoFillRenew, 600);
 }
 
 function openSubModal(subId) {
