@@ -1165,10 +1165,9 @@ function setAutoRenew(val) {
   autoFillRenew();
 }
 
-// 加入日 or サイクルが変わったとき、自動更新ONなら次回更新日を自動入力
+// 加入日 or サイクルが変わったとき、自動更新ONなら次回更新日を上書き
 function autoFillRenew() {
   if (!formAutoRenew) return;
-  if (editingSubId) return;
   const startVal = document.getElementById('f-start').value;
   if (!startVal) return;
 
