@@ -440,7 +440,8 @@ body {
       </div>
       <div class="form-group">
         <label class="form-label" id="f-amount-label">金額</label>
-        <input class="form-input" id="f-amount" type="number" inputmode="decimal" placeholder="980" min="0" step="0.01">
+        <input class="form-input" id="f-amount" type="number" inputmode="decimal" placeholder="980" min="0" step="0.01" oninput="updateJpyPreview()">
+        <div id="f-jpy-preview" style="display:none;margin-top:5px;font-size:12px;color:var(--text2);padding:5px 10px;background:var(--bg2);border-radius:var(--radius-sm)"></div>
       </div>
     </div>
 
@@ -469,7 +470,7 @@ body {
         </div>
         <div id="f-rate-manual" style="display:none;margin-top:8px">
           <label class="form-label">固定レート（1ドル/ユーロ = ?円）</label>
-          <input class="form-input" id="f-rate-value" type="number" inputmode="decimal" placeholder="150.00" step="0.01" min="0">
+          <input class="form-input" id="f-rate-value" type="number" inputmode="decimal" placeholder="150.00" step="0.01" min="0" oninput="updateJpyPreview()">
         </div>
       </div>
     </div>
@@ -491,7 +492,7 @@ body {
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">加入日</label>
-        <input class="form-input" id="f-start" type="date" onchange="autoFillRenew()">
+        <input class="form-input" id="f-start" type="date" onchange="autoFillRenew()" oninput="autoFillRenew()">
       </div>
       <div class="form-group">
         <label class="form-label">次回更新日</label>
@@ -1076,10 +1077,10 @@ function onCurrencyChange() {
     isForeign ? `金額 (${CURRENCY_LABELS[cur]})` : '金額 (円)';
   document.getElementById('f-amount').placeholder =
     cur === 'USD' ? '19.99' : cur === 'EUR' ? '9.99' : '980';
-  if (isForeign) {
-    // 切替時にレートを取得
-    fetchFxRates();
-  }
+  // 円プレビューをリセット
+  const prev = document.getElementById('f-jpy-preview');
+  if (prev) prev.style.display = 'none';
+  if (isForeign) fetchFxRates();
   updateRateDisplay();
 }
 
@@ -1109,7 +1110,7 @@ function updateRateDisplay() {
   const sym  = CURRENCY_SYMBOLS[cur];
   if (formRateMode === 'fixed') {
     textEl.textContent = '入力したレートで固定されます。決済済みの場合などに使用してください。';
-    if (dispEl) dispEl.querySelector('#f-rate-refresh-btn') && (document.getElementById('f-rate-refresh-btn').style.display = 'none');
+    if (dispEl) { const rb = document.getElementById('f-rate-refresh-btn'); if(rb) rb.style.display = 'none'; }
   } else {
     if (dispEl) { const rb = document.getElementById('f-rate-refresh-btn'); if(rb) rb.style.display = ''; }
     if (rate) {
@@ -1123,6 +1124,30 @@ function updateRateDisplay() {
       textEl.style.color = 'var(--warn)';
     }
   }
+  // レート更新後に円プレビューも更新
+  updateJpyPreview();
+}
+
+function updateJpyPreview() {
+  const prev = document.getElementById('f-jpy-preview');
+  if (!prev) return;
+  const cur    = document.getElementById('f-currency')?.value;
+  const amount = parseFloat(document.getElementById('f-amount')?.value);
+  if (!cur || cur === 'JPY' || !amount || amount <= 0) {
+    prev.style.display = 'none';
+    return;
+  }
+  const rateVal = formRateMode === 'fixed'
+    ? parseFloat(document.getElementById('f-rate-value')?.value)
+    : fxRates[cur];
+  if (!rateVal) {
+    prev.style.display = 'none';
+    return;
+  }
+  const jpy = Math.round(amount * rateVal);
+  const modeLabel = formRateMode === 'fixed' ? '🔒 固定' : '🔄 変動';
+  prev.textContent = `≈ ¥${jpy.toLocaleString('ja-JP')}（${modeLabel}）`;
+  prev.style.display = 'block';
 }
 
 /* ============================================================
@@ -1159,7 +1184,7 @@ function autoFillRenew() {
 }
 
 function openSubModal(subId) {
-  editingSubId = subId || null;
+  editingSubId = subId || null;  // 最初にセット（autoFillRenewの判定に使われるため）
   const sub = subId ? DB.subs.find(s => s.id === subId) : null;
 
   document.getElementById('sub-modal-title').textContent =
