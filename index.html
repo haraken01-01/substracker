@@ -436,7 +436,7 @@ body {
       </div>
       <div class="form-group">
         <label class="form-label">支払いサイクル</label>
-        <select class="form-select" id="f-cycle">
+        <select class="form-select" id="f-cycle" onchange="autoFillRenew()">
           <option value="monthly">月払い</option>
           <option value="yearly">年払い</option>
         </select>
@@ -451,7 +451,7 @@ body {
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">加入日</label>
-        <input class="form-input" id="f-start" type="date">
+        <input class="form-input" id="f-start" type="date" onchange="autoFillRenew()">
       </div>
       <div class="form-group">
         <label class="form-label">次回更新日</label>
@@ -578,13 +578,14 @@ const STORAGE_KEY = 'substracker_v1';
 
 // Preset categories (cannot be deleted)
 const PRESET_CATS = [
-  { id:'video',   emoji:'🎬', label:'動画',       color:'#2A6AFF', preset:true },
-  { id:'music',   emoji:'🎵', label:'音楽',       color:'#D85A30', preset:true },
-  { id:'cloud',   emoji:'☁️', label:'クラウド',   color:'#1D9E75', preset:true },
-  { id:'game',    emoji:'🎮', label:'ゲーム',     color:'#D4537E', preset:true },
-  { id:'work',    emoji:'💼', label:'仕事・学習', color:'#7F77DD', preset:true },
+  { id:'video',   emoji:'🎬', label:'動画',           color:'#2A6AFF', preset:true },
+  { id:'music',   emoji:'🎵', label:'音楽',           color:'#D85A30', preset:true },
+  { id:'cloud',   emoji:'☁️', label:'クラウド',       color:'#1D9E75', preset:true },
+  { id:'game',    emoji:'🎮', label:'ゲーム',         color:'#D4537E', preset:true },
+  { id:'work',    emoji:'💼', label:'仕事・学習',     color:'#7F77DD', preset:true },
+  { id:'ai',      emoji:'🤖', label:'AI',             color:'#0EA5E9', preset:true },
   { id:'utility', emoji:'🔧', label:'ユーティリティ', color:'#BA7517', preset:true },
-  { id:'other',   emoji:'📦', label:'その他',     color:'#888780', preset:true },
+  { id:'other',   emoji:'📦', label:'その他',         color:'#888780', preset:true },
 ];
 
 // Payment method type config
@@ -970,6 +971,26 @@ function setAutoRenew(val) {
   formAutoRenew = val;
   document.getElementById('f-autorenew-on').classList.toggle('active',  val);
   document.getElementById('f-autorenew-off').classList.toggle('active', !val);
+  // 自動更新に切り替えたとき、加入日が入力済みなら再計算
+  autoFillRenew();
+}
+
+// 加入日 or サイクルが変わったとき、自動更新ONなら次回更新日を自動入力
+function autoFillRenew() {
+  if (!formAutoRenew) return;
+  const startVal = document.getElementById('f-start').value;
+  if (!startVal) return;
+  // 次回更新日が手動入力済みの場合は上書きしない（新規登録時のみ）
+  if (editingSubId) return;
+
+  const cycle = document.getElementById('f-cycle').value;
+  const d = new Date(startVal);
+  if (cycle === 'yearly') {
+    d.setFullYear(d.getFullYear() + 1);
+  } else {
+    d.setMonth(d.getMonth() + 1);
+  }
+  document.getElementById('f-renew').value = d.toISOString().split('T')[0];
 }
 
 function openSubModal(subId) {
@@ -982,7 +1003,7 @@ function openSubModal(subId) {
   document.getElementById('f-name').value   = sub?.name   ?? '';
   document.getElementById('f-amount').value = sub?.amount ?? '';
   document.getElementById('f-cycle').value  = sub?.cycle  ?? 'monthly';
-  document.getElementById('f-start').value  = sub?.start  ?? today();
+  document.getElementById('f-start').value  = sub?.start  ?? '';
   document.getElementById('f-renew').value  = sub?.renew  ?? '';
   document.getElementById('f-note').value   = sub?.note   ?? '';
 
