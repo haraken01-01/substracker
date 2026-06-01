@@ -627,20 +627,11 @@ async function fetchFxRates() {
     if (saved.USD) fxRates = saved;
   } catch(e) {}
 
-  // Try to fetch fresh rates
+  // Fetch fresh rates in parallel
   try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=USD,EUR&to=JPY');
-    if (!res.ok) throw new Error('fetch failed');
-    const data = await res.json();
-    // frankfurter returns rates from base currency to JPY
-    // data.rates for USD->JPY and EUR->JPY
-    const usdJpy = data.base === 'USD' ? data.rates.JPY : null;
-    const eurJpy = data.base === 'EUR' ? data.rates.JPY : null;
-
-    // fetch both in parallel instead
     const [r1, r2] = await Promise.all([
-      fetch('https://api.frankfurter.app/latest?from=USD&to=JPY').then(r=>r.json()),
-      fetch('https://api.frankfurter.app/latest?from=EUR&to=JPY').then(r=>r.json()),
+      fetch('https://api.frankfurter.app/latest?from=USD&to=JPY').then(r => r.json()),
+      fetch('https://api.frankfurter.app/latest?from=EUR&to=JPY').then(r => r.json()),
     ]);
     fxRates = {
       USD: r1.rates?.JPY ?? fxRates.USD,
@@ -1164,9 +1155,10 @@ function openSubModal(subId) {
   document.getElementById('f-rate-value').value = sub?.fixedRate ?? (fxRates[cur] ? fxRates[cur].toFixed(2) : '');
   updateRateDisplay();
 
-  // Auto renew toggle
+  // Auto renew toggle（setAutoRenewを呼ぶとautoFillRenewが走るので直接DOMを操作）
   formAutoRenew = sub ? (sub.autoRenew !== false) : true;
-  setAutoRenew(formAutoRenew);
+  document.getElementById('f-autorenew-on').classList.toggle('active',  formAutoRenew);
+  document.getElementById('f-autorenew-off').classList.toggle('active', !formAutoRenew);
 
   // Build category select dynamically
   const catSel = document.getElementById('f-cat');
