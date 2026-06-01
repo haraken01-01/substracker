@@ -288,6 +288,31 @@ body {
 .cat-bg-work    { background: #7F77DD22; }
 .cat-bg-utility { background: #BA751722; }
 .cat-bg-custom  { background: #88878022; }
+/* Autocomplete */
+.autocomplete-wrap { position: relative; }
+.autocomplete-list {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--bg); border: 0.5px solid var(--border2);
+  border-radius: var(--radius-md); z-index: 500;
+  max-height: 220px; overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  display: none;
+}
+.autocomplete-list.open { display: block; }
+.ac-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 13px; cursor: pointer;
+  border-bottom: 0.5px solid var(--border);
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.selected { background: var(--bg2); }
+.ac-emoji { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.ac-info { flex: 1; min-width: 0; }
+.ac-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.ac-meta { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.ac-cat { flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -426,7 +451,14 @@ body {
 
     <div class="form-group">
       <label class="form-label">サービス名</label>
-      <input class="form-input" id="f-name" type="text" placeholder="Netflix, Spotify など">
+      <div class="autocomplete-wrap">
+        <input class="form-input" id="f-name" type="text" placeholder="Netflix, Spotify など"
+          autocomplete="off"
+          oninput="onServiceInput()"
+          onkeydown="onServiceKeydown(event)"
+          onblur="setTimeout(()=>closeAcList(),200)">
+        <div class="autocomplete-list" id="ac-list"></div>
+      </div>
     </div>
 
     <div class="form-row">
@@ -674,6 +706,160 @@ function fmtCurrency(amount, currency, rateMode, fixedRate) {
 function monthlyAmountJPY(sub) {
   const base = sub.cycle === 'yearly' ? sub.amount / 12 : sub.amount;
   return Math.round(toJPY(base, sub.currency || 'JPY', sub.rateMode, sub.fixedRate));
+}
+
+/* ============================================================
+   SERVICE DATABASE（予測変換候補）
+   ============================================================ */
+const SERVICE_DB = [
+  // 動画
+  { name:'Netflix',          emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画ストリーミング' },
+  { name:'Amazon Prime',     emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画・配送・音楽' },
+  { name:'Disney+',          emoji:'🎬', cat:'video',   currency:'JPY', hint:'ディズニー・Marvel・Star Wars' },
+  { name:'Hulu',             emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画ストリーミング' },
+  { name:'U-NEXT',           emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画・電子書籍' },
+  { name:'Apple TV+',        emoji:'🎬', cat:'video',   currency:'JPY', hint:'Appleオリジナル動画' },
+  { name:'YouTube Premium',  emoji:'🎬', cat:'video',   currency:'JPY', hint:'広告なし・バックグラウンド再生' },
+  { name:'DAZN',             emoji:'🎬', cat:'video',   currency:'JPY', hint:'スポーツ動画' },
+  { name:'DMM TV',           emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画・アニメ' },
+  { name:'ABEMAプレミアム',  emoji:'🎬', cat:'video',   currency:'JPY', hint:'ライブ・アニメ・スポーツ' },
+  { name:'Paramount+',       emoji:'🎬', cat:'video',   currency:'USD', hint:'動画ストリーミング' },
+  { name:'Max',              emoji:'🎬', cat:'video',   currency:'USD', hint:'HBO・Warner Bros.' },
+  // 音楽
+  { name:'Spotify',          emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
+  { name:'Apple Music',      emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
+  { name:'Amazon Music',     emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
+  { name:'YouTube Music',    emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
+  { name:'LINE MUSIC',       emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
+  { name:'AWA',              emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
+  { name:'Tidal',            emoji:'🎵', cat:'music',   currency:'USD', hint:'ハイレゾ音楽' },
+  // クラウド
+  { name:'iCloud+',          emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'Apple クラウドストレージ' },
+  { name:'Google One',       emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'Googleクラウドストレージ' },
+  { name:'Dropbox',          emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'クラウドストレージ' },
+  { name:'Microsoft 365',    emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'Office + OneDrive' },
+  { name:'Adobe Creative Cloud', emoji:'☁️', cat:'work', currency:'JPY', hint:'Photoshop・Illustratorなど' },
+  // ゲーム
+  { name:'Nintendo Switch Online', emoji:'🎮', cat:'game', currency:'JPY', hint:'Nintendo オンラインプレイ' },
+  { name:'PlayStation Plus', emoji:'🎮', cat:'game',   currency:'JPY', hint:'PS オンライン・フリープレイ' },
+  { name:'Xbox Game Pass',   emoji:'🎮', cat:'game',   currency:'JPY', hint:'Microsoftゲームサブスク' },
+  { name:'Apple Arcade',     emoji:'🎮', cat:'game',   currency:'JPY', hint:'Apple ゲームサブスク' },
+  { name:'Steam',            emoji:'🎮', cat:'game',   currency:'USD', hint:'PCゲームプラットフォーム' },
+  // AI
+  { name:'ChatGPT Plus',     emoji:'🤖', cat:'ai',     currency:'USD', hint:'OpenAI / GPT-4o' },
+  { name:'Claude Pro',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'Anthropic' },
+  { name:'Claude Max',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'Anthropic / 最上位プラン' },
+  { name:'Gemini Advanced',  emoji:'🤖', cat:'ai',     currency:'USD', hint:'Google AI' },
+  { name:'GitHub Copilot',   emoji:'🤖', cat:'ai',     currency:'USD', hint:'AIコーディングアシスタント' },
+  { name:'Perplexity Pro',   emoji:'🤖', cat:'ai',     currency:'USD', hint:'AI検索エンジン' },
+  { name:'Midjourney',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'AI画像生成' },
+  { name:'Cursor',           emoji:'🤖', cat:'ai',     currency:'USD', hint:'AIコードエディタ' },
+  { name:'Copilot Pro',      emoji:'🤖', cat:'ai',     currency:'USD', hint:'Microsoft AI' },
+  { name:'Grok',             emoji:'🤖', cat:'ai',     currency:'USD', hint:'xAI' },
+  // SaaS・仕事・学習
+  { name:'Notion',           emoji:'💼', cat:'work',   currency:'USD', hint:'メモ・プロジェクト管理' },
+  { name:'Slack',            emoji:'💼', cat:'work',   currency:'JPY', hint:'ビジネスチャット' },
+  { name:'Zoom',             emoji:'💼', cat:'work',   currency:'JPY', hint:'ビデオ会議' },
+  { name:'Figma',            emoji:'💼', cat:'work',   currency:'USD', hint:'UIデザインツール' },
+  { name:'Canva Pro',        emoji:'💼', cat:'work',   currency:'JPY', hint:'デザインツール' },
+  { name:'1Password',        emoji:'💼', cat:'work',   currency:'USD', hint:'パスワードマネージャー' },
+  { name:'Duolingo Plus',    emoji:'💼', cat:'work',   currency:'JPY', hint:'語学学習' },
+  { name:'ChatWork',         emoji:'💼', cat:'work',   currency:'JPY', hint:'ビジネスチャット（日本）' },
+  { name:'freee',            emoji:'💼', cat:'work',   currency:'JPY', hint:'会計・確定申告' },
+  { name:'マネーフォワード', emoji:'💼', cat:'work',   currency:'JPY', hint:'家計・確定申告' },
+  { name:'Udemy',            emoji:'💼', cat:'work',   currency:'JPY', hint:'オンライン学習' },
+  // ユーティリティ
+  { name:'NordVPN',          emoji:'🔧', cat:'utility', currency:'USD', hint:'VPNサービス' },
+  { name:'ExpressVPN',       emoji:'🔧', cat:'utility', currency:'USD', hint:'VPNサービス' },
+  { name:'LastPass',         emoji:'🔧', cat:'utility', currency:'USD', hint:'パスワードマネージャー' },
+  { name:'Evernote',         emoji:'🔧', cat:'utility', currency:'JPY', hint:'メモ・ノート' },
+  { name:'Bear',             emoji:'🔧', cat:'utility', currency:'JPY', hint:'Markdownノート（Mac）' },
+  { name:'Day One',          emoji:'🔧', cat:'utility', currency:'JPY', hint:'日記アプリ' },
+  { name:'Fantastical',      emoji:'🔧', cat:'utility', currency:'JPY', hint:'カレンダーアプリ' },
+];
+
+/* ============================================================
+   AUTOCOMPLETE
+   ============================================================ */
+let acIndex = -1;
+
+function onServiceInput() {
+  const val = document.getElementById('f-name').value.trim().toLowerCase();
+  const list = document.getElementById('ac-list');
+  acIndex = -1;
+  if (!val) { list.classList.remove('open'); return; }
+
+  const matches = SERVICE_DB.filter(s =>
+    s.name.toLowerCase().includes(val)
+  ).slice(0, 7);
+
+  if (!matches.length) { list.classList.remove('open'); return; }
+
+  list.innerHTML = matches.map((s, i) => {
+    const catLabel = (PRESET_CATS.find(c => c.id === s.cat) || {}).label || '';
+    return `<div class="ac-item" data-idx="${i}"
+      onmousedown="applyService(${i})"
+      ontouchstart="applyService(${i})">
+      <span class="ac-emoji">${s.emoji}</span>
+      <div class="ac-info">
+        <div class="ac-name">${esc(s.name)}</div>
+        <div class="ac-meta">${esc(s.hint)}</div>
+      </div>
+      <span class="badge badge-gray ac-cat" style="font-size:9px">${catLabel}</span>
+    </div>`;
+  }).join('');
+
+  list._matches = matches;
+  list.classList.add('open');
+}
+
+function onServiceKeydown(e) {
+  const list = document.getElementById('ac-list');
+  const items = list.querySelectorAll('.ac-item');
+  if (!list.classList.contains('open') || !items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    acIndex = Math.min(acIndex + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('selected', i === acIndex));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    acIndex = Math.max(acIndex - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('selected', i === acIndex));
+  } else if (e.key === 'Enter' && acIndex >= 0) {
+    e.preventDefault();
+    applyService(acIndex);
+  } else if (e.key === 'Escape') {
+    closeAcList();
+  }
+}
+
+function applyService(idx) {
+  const list = document.getElementById('ac-list');
+  const matches = list._matches;
+  if (!matches || !matches[idx]) return;
+  const s = matches[idx];
+
+  document.getElementById('f-name').value = s.name;
+
+  // カテゴリを自動セット
+  const catSel = document.getElementById('f-cat');
+  if (catSel) catSel.value = s.cat;
+
+  // 通貨を自動セット
+  const curSel = document.getElementById('f-currency');
+  if (curSel && s.currency) {
+    curSel.value = s.currency;
+    onCurrencyChange();
+  }
+
+  closeAcList();
+  document.getElementById('f-amount').focus();
+}
+
+function closeAcList() {
+  const list = document.getElementById('ac-list');
+  if (list) list.classList.remove('open');
+  acIndex = -1;
 }
 
 // Preset categories (cannot be deleted)
@@ -1441,6 +1627,7 @@ function importData(event) {
    ============================================================ */
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
+  closeAcList();
 }
 function closeModalOnBg(e, id) {
   if (e.target.id === id) closeModal(id);
