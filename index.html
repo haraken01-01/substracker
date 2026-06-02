@@ -411,7 +411,8 @@ body {
       </div>
       <div class="section-note">データはこのブラウザにのみ保存されています。別のブラウザやデバイスには同期されません。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="exportData()">📤 エクスポート（JSON）</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportCsv()">📊 CSVエクスポート</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportData()">📤 JSONエクスポート</button>
         <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">📥 インポート</button>
         <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
       </div>
@@ -1725,6 +1726,49 @@ function deletePm(pmId) {
 /* ============================================================
    DATA EXPORT / IMPORT
    ============================================================ */
+function exportCsv() {
+  if (!DB.subs.length) { showToast('エクスポートするサブスクがありません'); return; }
+
+  const headers = [
+    'サービス名', 'カテゴリ', '金額', '通貨',
+    '月換算(円)', 'サイクル', '自動更新',
+    '加入日', '次回更新日', '支払い方法', 'メモ'
+  ];
+
+  const rows = DB.subs.map(s => {
+    const cat      = getCat(s.cat);
+    const monthly  = monthlyAmountJPY(s);
+    const autoRenew = s.autoRenew !== false ? '自動' : '手動';
+    const cycle    = s.cycle === 'monthly' ? '月払い' : '年払い';
+    const pm       = getPmName(s.pmId);
+    return [
+      s.name,
+      cat.label,
+      s.amount,
+      s.currency || 'JPY',
+      monthly,
+      cycle,
+      autoRenew,
+      s.start  || '',
+      s.renew  || '',
+      pm,
+      s.note   || '',
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+  });
+
+  // BOM付きUTF-8でExcelが文字化けしないようにする
+  const bom  = '\uFEFF';
+  const csv  = bom + headers.join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'substracker_' + today() + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSVをエクスポートしました');
+}
+
 function exportData() {
   const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
