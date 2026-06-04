@@ -1,0 +1,25 @@
+{
+  "name": "SubsTrack",
+  "short_name": "SubsTrack",
+  "description": "サブスク・支出・ライセンスを一元管理",
+  "start_url": "/substracker/",
+  "scope": "/substracker/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2A6AFF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

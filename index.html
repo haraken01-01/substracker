@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SubsTrack</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2A6AFF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="SubsTrack">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -346,6 +355,101 @@ body {
 .ac-name { font-size: 13px; font-weight: 500; color: var(--text); }
 .ac-meta { font-size: 11px; color: var(--text2); margin-top: 1px; }
 .ac-cat { flex-shrink: 0; }
+
+/* Expense type button */
+.exp-type-btn {
+  padding: 10px 8px; border-radius: var(--radius-md); font-size: 13px;
+  font-family: inherit; font-weight: 500; cursor: pointer;
+  border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2);
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+  text-align: center;
+}
+.exp-type-btn.active {
+  border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
+  font-weight: 600;
+}
+
+/* Expense row */
+.exp-row {
+  background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  padding: 13px 15px; display: flex; align-items: center; gap: 12px;
+  margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.exp-row:hover { border-color: var(--border2); }
+.exp-type-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+
+/* Chart bars */
+.bar-chart-wrap { display: flex; align-items: flex-end; gap: 6px; height: 140px; padding: 0 4px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.bar-fill { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent); min-height: 2px; transition: height 0.3s ease; }
+.bar-label { font-size: 10px; color: var(--text2); white-space: nowrap; }
+.bar-amount { font-size: 9px; color: var(--text2); white-space: nowrap; }
+
+/* Pie chart */
+.pie-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.pie-legend-item { display: flex; align-items: center; gap: 8px; }
+.pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.pie-legend-label { font-size: 13px; color: var(--text); flex: 1; }
+.pie-legend-val { font-size: 13px; font-weight: 500; color: var(--text); }
+.pie-legend-pct { font-size: 11px; color: var(--text2); min-width: 36px; text-align: right; }
+
+/* Monthly cat row */
+.cat-summary-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--bg);
+  border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+.cat-summary-bar-wrap { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.cat-summary-bar { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+/* License card */
+.lic-row {
+  background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  padding: 14px 15px; margin-bottom: 8px; cursor: pointer;
+  transition: border-color 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.lic-row:hover { border-color: var(--border2); }
+.lic-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.lic-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.lic-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lic-key-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.lic-key-val { font-size: 12px; font-family: 'Courier New', monospace; color: var(--text2); background: var(--bg2); padding: 4px 10px; border-radius: var(--radius-sm); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 0.5px; }
+.lic-key-toggle { background: none; border: none; cursor: pointer; font-size: 15px; color: var(--text3); padding: 2px 4px; flex-shrink: 0; }
+.lic-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* OS chips */
+.os-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: 20px; font-size: 13px;
+  font-family: inherit; font-weight: 500; cursor: pointer;
+  border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2);
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.os-chip.active {
+  border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
+  font-weight: 600;
+}
+
+/* Subs category filter chips */
+.cat-filter-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 20px; font-size: 12px;
+  font-family: inherit; font-weight: 500; cursor: pointer;
+  border: 0.5px solid var(--border); background: var(--bg2); color: var(--text2);
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent; white-space: nowrap;
+}
+.cat-filter-chip.active {
+  font-weight: 600; color: #fff;
+}
+
+/* Horizontal bar for category breakdown */
+.hbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.hbar-label { font-size: 12px; color: var(--text); width: 72px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbar-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.hbar-fill  { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+.hbar-val   { font-size: 11px; color: var(--text2); white-space: nowrap; min-width: 56px; text-align: right; }
 </style>
 </head>
 <body>
@@ -358,54 +462,105 @@ body {
       <div class="logo-icon">💳</div>
       SubsTrack
     </div>
-    <span id="topbar-month" style="font-size:13px;color:var(--text2)"></span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="topbar-month" style="font-size:13px;color:var(--text2)"></span>
+      <button onclick="gotoSettingsFromTopbar()" style="background:none;border:none;cursor:pointer;font-size:22px;padding:4px;color:var(--text2);line-height:1;-webkit-tap-highlight-color:transparent" aria-label="設定">⚙️</button>
+    </div>
   </div>
 
   <!-- ===== DASHBOARD ===== -->
   <div class="section active" id="sec-dashboard">
-    <div class="period-row">
-      <span class="period-label">表示期間</span>
-      <div class="period-toggle">
-        <button class="period-btn active" onclick="setPeriod('monthly',this)">月</button>
-        <button class="period-btn" onclick="setPeriod('yearly',this)">年</button>
+
+    <!-- ゾーン1: 今月のサマリー -->
+    <div style="margin-bottom:18px">
+      <div class="period-row" style="margin-bottom:12px">
+        <span class="sec-title">今月のサマリー</span>
+        <div class="period-toggle">
+          <button class="period-btn active" onclick="setPeriod('monthly',this)">月</button>
+          <button class="period-btn" onclick="setPeriod('yearly',this)">年</button>
+        </div>
+      </div>
+      <!-- メイン: 総支出（大きく） -->
+      <div class="card" style="margin-bottom:10px;padding:18px 20px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:12px;color:var(--text2)">今月の総支出（サブスク＋支出）</span>
+          <span style="font-size:11px;color:var(--text3)" id="m-total-note"></span>
+        </div>
+        <div style="font-size:32px;font-weight:700;color:var(--text);letter-spacing:-1px" id="m-total">¥0</div>
+      </div>
+      <!-- サブ: 内訳2カード -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">🔄 サブスク</div>
+          <div class="metric-value accent" id="m-sub">¥0</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px" id="m-sub-count"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">💸 支出</div>
+          <div class="metric-value danger" id="m-expense">¥0</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px" id="m-expense-count"></div>
+        </div>
       </div>
     </div>
-    <div class="metric-grid">
-      <div class="metric-card">
-        <div class="metric-label">サブスク合計</div>
-        <div class="metric-value accent" id="m-sub">¥0</div>
+
+    <!-- ゾーン2: 月別推移グラフ -->
+    <div style="margin-bottom:18px">
+      <div class="sec-header" style="margin-bottom:10px">
+        <span class="sec-title">月別推移</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent);display:inline-block"></span>サブスク</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:2px;background:var(--danger);display:inline-block"></span>支出</span>
+        </div>
       </div>
-      <div class="metric-card">
-        <div class="metric-label">今月の支出目安</div>
-        <div class="metric-value accent" id="m-estimate">¥0</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">30日以内の更新</div>
-        <div class="metric-value warn" id="m-renew">0件</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">登録件数</div>
-        <div class="metric-value" id="m-count">0件</div>
+      <div class="card" style="padding:16px">
+        <div id="dash-bar-chart"></div>
       </div>
     </div>
-    <div class="sec-header">
-      <span class="sec-title">更新予定 <span style="font-size:12px;font-weight:400;color:var(--text2)">（30日以内）</span></span>
+
+    <!-- ゾーン3: 更新・期限アラート -->
+    <div>
+      <div class="sec-header" style="margin-bottom:10px">
+        <span class="sec-title">更新・期限アラート <span style="font-size:12px;font-weight:400;color:var(--text2)">（30日以内）</span></span>
+        <span id="m-renew-badge"></span>
+      </div>
+      <div id="upcoming-list"></div>
     </div>
-    <div id="upcoming-list"></div>
+
   </div>
 
   <!-- ===== SUBSCRIPTIONS ===== -->
   <div class="section" id="sec-subs">
+    <!-- ヘッダー行 -->
+    <div class="sec-header" style="margin-bottom:10px">
+      <span class="sec-title">サブスク一覧 <span id="subs-count-label" style="font-size:12px;font-weight:400;color:var(--text2)"></span></span>
+      <button class="btn btn-ghost btn-sm" onclick="openSortSheet()" id="sort-btn">
+        ↕ <span id="sort-label">更新日順</span>
+      </button>
+    </div>
+
+    <!-- カテゴリフィルタ -->
+    <div id="subs-cat-filter" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
+
+    <!-- カテゴリ別内訳（フィルタなし時のみ表示） -->
+    <div id="subs-breakdown" style="margin-bottom:16px"></div>
+
+    <!-- 一覧 -->
+    <div id="subs-list"></div>
+  </div>
+
+  <!-- ===== LICENSE ===== -->
+  <div class="section" id="sec-license">
     <div class="sec-header">
-      <span class="sec-title">サブスク一覧</span>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span id="subs-count-label" style="font-size:12px;color:var(--text2)"></span>
-        <button class="btn btn-ghost btn-sm" onclick="openSortSheet()" id="sort-btn">
-          ↕ <span id="sort-label">更新日順</span>
-        </button>
+      <span class="sec-title">ライセンス一覧</span>
+      <div style="display:flex;gap:6px">
+        <select class="form-select" id="lic-filter-cat" onchange="renderLicense()" style="height:34px;font-size:12px;padding:0 8px;width:auto">
+          <option value="">すべて</option>
+          <option value="software">💻 ソフト・アプリ</option>
+          <option value="os_device">🖥️ OS・デバイス</option>
+        </select>
       </div>
     </div>
-    <div id="subs-list"></div>
+    <div id="lic-list"></div>
   </div>
 
   <!-- ===== PAYMENT METHODS ===== -->
@@ -419,10 +574,63 @@ body {
     </div>
   </div>
 
+  <!-- ===== EXPENSE ===== -->
+  <div class="section" id="sec-expense">
+    <!-- サマリーバー -->
+    <div class="segment" id="exp-segment" style="margin-bottom:16px">
+      <button class="seg-btn active" onclick="setExpView('list',this)">一覧</button>
+      <button class="seg-btn" onclick="setExpView('monthly',this)">月別</button>
+      <button class="seg-btn" onclick="setExpView('chart',this)">グラフ</button>
+    </div>
+
+    <!-- 一覧ビュー -->
+    <div id="exp-view-list">
+      <div class="sec-header">
+        <span class="sec-title">支出一覧</span>
+        <div style="display:flex;gap:6px">
+          <select class="form-select" id="exp-filter-type" onchange="renderExpense()" style="height:34px;font-size:12px;padding:0 8px;width:auto">
+            <option value="">すべて</option>
+            <option value="fixed">🏠 固定費</option>
+            <option value="variable">🛒 変動費</option>
+          </select>
+        </div>
+      </div>
+      <div id="exp-list"></div>
+    </div>
+
+    <!-- 月別ビュー -->
+    <div id="exp-view-monthly" style="display:none">
+      <div class="sec-header">
+        <span class="sec-title">月別サマリー</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="shiftExpMonth(-1)">‹</button>
+          <span id="exp-month-label" style="font-size:13px;color:var(--text2);min-width:72px;text-align:center"></span>
+          <button class="btn btn-ghost btn-sm" onclick="shiftExpMonth(1)">›</button>
+        </div>
+      </div>
+      <div id="exp-monthly-cards" class="metric-grid" style="margin-bottom:16px"></div>
+      <div id="exp-monthly-cats"></div>
+    </div>
+
+    <!-- グラフビュー -->
+    <div id="exp-view-chart" style="display:none">
+      <div class="sec-header"><span class="sec-title">グラフ</span></div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px">月別支出（直近6ヶ月）</div>
+        <div id="exp-bar-chart"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px">カテゴリ別内訳（今月）</div>
+        <div id="exp-pie-chart"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== SETTINGS ===== -->
   <div class="section" id="sec-settings">
     <div class="sec-header">
-      <span class="sec-title">設定</span>
+      <span class="sec-title">⚙️ 設定</span>
+      <button class="btn btn-ghost btn-sm" onclick="gotoSection('dashboard', document.querySelector('.nav-item'))">← ホームへ</button>
     </div>
 
     <!-- Category manager -->
@@ -467,16 +675,19 @@ body {
   <button class="nav-item" onclick="gotoSection('subs',this)">
     <span class="nav-icon">🔄</span><span>サブスク</span>
   </button>
+  <button class="nav-item" onclick="gotoSection('expense',this)">
+    <span class="nav-icon">💸</span><span>支出</span>
+  </button>
+  <button class="nav-item" onclick="gotoSection('license',this)">
+    <span class="nav-icon">🔑</span><span>ライセンス</span>
+  </button>
   <button class="nav-item" onclick="gotoSection('payments',this)">
     <span class="nav-icon">💳</span><span>支払い</span>
-  </button>
-  <button class="nav-item" onclick="gotoSection('settings',this)">
-    <span class="nav-icon">⚙️</span><span>設定</span>
   </button>
 </nav>
 
 <!-- FAB -->
-<button class="fab" id="fab-btn" onclick="openSubModal()" aria-label="追加">＋</button>
+<button class="fab" id="fab-btn" onclick="onFabClick()" aria-label="追加">＋</button>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -489,6 +700,95 @@ body {
     <div id="sort-options"></div>
     <div style="margin-top:8px">
       <button class="btn btn-ghost" style="width:100%" onclick="closeModal('modal-sort')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== MODAL: 支出追加/編集 ===== -->
+<div class="modal-overlay" id="modal-exp" onclick="closeModalOnBg(event,'modal-exp')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="exp-modal-title">支出を追加</div>
+
+    <div class="form-group">
+      <label class="form-label">タイトル</label>
+      <input class="form-input" id="ef-title" type="text" placeholder="例：家賃、食費、電気代">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">種別</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button type="button" class="exp-type-btn active" data-type="fixed" onclick="setExpType('fixed',this)">🏠 固定費</button>
+        <button type="button" class="exp-type-btn" data-type="variable" onclick="setExpType('variable',this)">🛒 変動費</button>
+      </div>
+    </div>
+
+    <!-- 毎月リピート（固定費のみ表示） -->
+    <div class="form-group" id="ef-monthly-wrap" style="display:none">
+      <label class="form-label">毎月リピート</label>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="seg-btn" id="ef-monthly-on"
+          onclick="setExpMonthly(true)"
+          style="flex:1;border:.5px solid var(--border);border-radius:var(--radius-md)">
+          🔁 毎月ON
+        </button>
+        <button type="button" class="seg-btn active" id="ef-monthly-off"
+          onclick="setExpMonthly(false)"
+          style="flex:1;border:.5px solid var(--border);border-radius:var(--radius-md)">
+          ─ OFF
+        </button>
+      </div>
+      <div id="ef-monthly-note" style="display:none;margin-top:6px;font-size:12px;color:var(--text2);padding:8px 12px;background:var(--bg2);border-radius:var(--radius-md)">
+        毎月この金額が集計・グラフに自動反映されます。OFFにすると以降の月から除外されます。
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">通貨</label>
+        <select class="form-select" id="ef-currency" onchange="updateExpJpyPreview()" style="height:44px">
+          <option value="JPY">¥ 円</option>
+          <option value="USD">$ USD</option>
+          <option value="EUR">€ EUR</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">金額</label>
+        <input class="form-input" id="ef-amount" type="number" inputmode="decimal" placeholder="0" min="0" step="0.01" oninput="updateExpJpyPreview()">
+        <div id="ef-jpy-preview" style="display:none;margin-top:5px;font-size:12px;color:var(--text2);padding:5px 10px;background:var(--bg2);border-radius:var(--radius-sm)"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">支出日</label>
+        <input class="form-input" id="ef-date" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">カテゴリ</label>
+        <select class="form-select" id="ef-cat"></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">支払い方法</label>
+      <select class="form-select" id="ef-pm">
+        <option value="">— 未設定 —</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">メモ（任意）</label>
+      <input class="form-input" id="ef-note" type="text" placeholder="任意のメモ">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-exp')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveExpense()">保存</button>
+    </div>
+    <div class="delete-zone" id="exp-delete-zone" style="display:none">
+      <button class="btn btn-danger-ghost" style="width:100%" onclick="deleteExpense()">この支出を削除</button>
     </div>
   </div>
 </div>
@@ -621,6 +921,101 @@ body {
   </div>
 </div>
 
+
+<!-- ===== MODAL: ライセンス追加/編集 ===== -->
+<div class="modal-overlay" id="modal-lic" onclick="closeModalOnBg(event,'modal-lic')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="lic-modal-title">ライセンスを追加</div>
+
+    <div class="form-group">
+      <label class="form-label">ソフト・製品名</label>
+      <input class="form-input" id="lf-name" type="text" placeholder="例：Affinity Designer、Windows 11">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">カテゴリ</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button type="button" class="exp-type-btn active" data-lcat="software" onclick="setLicCat('software',this)">💻 ソフト・アプリ</button>
+        <button type="button" class="exp-type-btn" data-lcat="os_device" onclick="setLicCat('os_device',this)">🖥️ OS・デバイス</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ライセンスキー / シリアル番号</label>
+      <div style="position:relative">
+        <input class="form-input" id="lf-key" type="password" placeholder="XXXX-XXXX-XXXX-XXXX"
+          style="padding-right:48px" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button type="button" onclick="toggleLicKeyVisible()"
+          style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:0;color:var(--text2)"
+          id="lf-key-eye">👁</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">購入日</label>
+        <input class="form-input" id="lf-purchase-date" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">有効期限</label>
+        <input class="form-input" id="lf-expiry" type="date" placeholder="空欄=永続">
+        <div style="margin-top:4px;font-size:11px;color:var(--text2)">空欄 = 永続ライセンス</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">購入価格（参照用）</label>
+        <input class="form-input" id="lf-price" type="number" inputmode="decimal" placeholder="0" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">通貨</label>
+        <select class="form-select" id="lf-currency" style="height:44px">
+          <option value="JPY">¥ 円</option>
+          <option value="USD">$ USD</option>
+          <option value="EUR">€ EUR</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">対応OS（複数選択可）</label>
+      <div id="lf-os-chips" style="display:flex;flex-wrap:wrap;gap:8px">
+        <button type="button" class="os-chip" data-os="Windows" onclick="toggleOsChip(this)">🪟 Windows</button>
+        <button type="button" class="os-chip" data-os="macOS"   onclick="toggleOsChip(this)">🍎 macOS</button>
+        <button type="button" class="os-chip" data-os="Linux"   onclick="toggleOsChip(this)">🐧 Linux</button>
+        <button type="button" class="os-chip" data-os="iOS"     onclick="toggleOsChip(this)">📱 iOS</button>
+        <button type="button" class="os-chip" data-os="Android" onclick="toggleOsChip(this)">🤖 Android</button>
+        <button type="button" class="os-chip" data-os="ChromeOS" onclick="toggleOsChip(this)">🌐 ChromeOS</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">台数制限</label>
+        <input class="form-input" id="lf-seats" type="number" inputmode="numeric" placeholder="例：1、5" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">バージョン（任意）</label>
+        <input class="form-input" id="lf-version" type="text" placeholder="例：v2.x、2024">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">メモ（任意）</label>
+      <input class="form-input" id="lf-note" type="text" placeholder="例：Mac用、購入ストア: App Store">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-lic')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveLicense()">保存</button>
+    </div>
+    <div class="delete-zone" id="lic-delete-zone" style="display:none">
+      <button class="btn btn-danger-ghost" style="width:100%" onclick="deleteLicense()">このライセンスを削除</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== MODAL: 支払い方法追加 ===== -->
 <div class="modal-overlay" id="modal-pm" onclick="closeModalOnBg(event,'modal-pm')">
@@ -1086,8 +1481,15 @@ function loadData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultData();
     const d = JSON.parse(raw);
-    // migrate: ensure customCategories exists
     if (!d.customCategories) d.customCategories = [];
+    if (!d.expenses) d.expenses = [];
+    if (!d.licenses) d.licenses = [];
+    // マイグレーション: デフォルト支払い方法がなければ末尾に追加
+    PM_DEFAULTS.forEach(def => {
+      if (!d.paymentMethods.some(p => p.id === def.id)) {
+        d.paymentMethods.push(def);
+      }
+    });
     return d;
   } catch(e) { return defaultData(); }
 }
@@ -1096,8 +1498,35 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
 }
 
+const PM_DEFAULTS = [
+  { id:'pm_default_cash', type:'cash',         name:'現金',    icon:'💴', color:'#888780', isDefault:true },
+  { id:'pm_default_bank', type:'bank',         name:'銀行振込', icon:'🏦', color:'#1D9E75', isDefault:true },
+  { id:'pm_default_conv', type:'convenience',  name:'コンビニ決済', icon:'🏪', color:'#D85A30', isDefault:true },
+];
+
+// 支払い方法セレクト用HTML生成（ユーザー追加→デフォルト→新規追加）
+function buildPmOptions(selectedId) {
+  const userPms    = DB.paymentMethods.filter(p => !p.isDefault);
+  const defaultPms = DB.paymentMethods.filter(p =>  p.isDefault);
+  const toOption = pm => {
+    const lbl = pm.type === 'card'
+      ? pm.name + (pm.last4 ? ' ****'+pm.last4 : '')
+      : pm.name;
+    const sel = selectedId && pm.id === selectedId ? 'selected' : '';
+    return `<option value="${pm.id}" ${sel}>${pm.icon||''} ${esc(lbl)}</option>`;
+  };
+  let html = '<option value="">— 未設定 —</option>';
+  if (userPms.length) html += userPms.map(toOption).join('');
+  if (defaultPms.length) {
+    if (userPms.length) html += `<option disabled>──────────</option>`;
+    html += defaultPms.map(toOption).join('');
+  }
+  html += `<option value="__add_new__">＋ 新しい支払い方法を追加する</option>`;
+  return html;
+}
+
 function defaultData() {
-  return { subs: [], paymentMethods: [], customCategories: [], version: 1 };
+  return { subs: [], paymentMethods: [...PM_DEFAULTS], customCategories: [], expenses: [], licenses: [], version: 1 };
 }
 
 let DB = loadData();
@@ -1202,12 +1631,32 @@ function gotoSection(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   currentSection = id;
-  // FAB: hide on settings page
+  // FAB: 支払いタブのみ非表示（設定はトップバーに移動済み）
   const fab = document.getElementById('fab-btn');
-  fab.style.display = (id === 'payments' || id === 'settings') ? 'none' : 'flex';
+  fab.style.display = id === 'payments' ? 'none' : 'flex';
   render();
+}
+
+// トップバーの⚙️ボタンから設定へ遷移
+function gotoSettingsFromTopbar() {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-settings').classList.add('active');
+  currentSection = 'settings';
+  document.getElementById('fab-btn').style.display = 'none';
+  render();
+}
+
+function onFabClick() {
+  if (currentSection === 'expense') {
+    openExpModal();
+  } else if (currentSection === 'license') {
+    openLicModal();
+  } else {
+    openSubModal();
+  }
 }
 
 function setPeriod(p, btn) {
@@ -1224,6 +1673,8 @@ function setPeriod(p, btn) {
 function render() {
   if (currentSection === 'dashboard') renderDashboard();
   if (currentSection === 'subs')      renderSubs();
+  if (currentSection === 'expense')   renderExpense();
+  if (currentSection === 'license')   renderLicense();
   if (currentSection === 'payments')  renderPayments();
   if (currentSection === 'settings')  renderSettings();
 }
@@ -1235,52 +1686,134 @@ function renderDashboard() {
     now.getFullYear() + '年' + (now.getMonth()+1) + '月';
 
   const mult = dashPeriod === 'yearly' ? 12 : 1;
+  const periodLabel = dashPeriod === 'yearly' ? '年額' : '月額';
   const subs = DB.subs;
 
-  // サブスク合計（月換算ベース × 表示期間倍率）
-  const subTotal = subs.reduce((a, s) => a + monthlyAmount(s) * mult, 0);
+  // ── ゾーン1: サマリー計算 ──
+  const subMonthly = subs.reduce((a, s) => a + monthlyAmount(s), 0);
+  const subTotal   = subMonthly * mult;
 
-  // 今月の支出目安 = 月払い合計 + 年払いの月割換算合計（常に月ベース）
-  const monthlyEstimate = subs.reduce((a, s) => a + monthlyAmount(s), 0);
+  const thisMonth = expMonthStr(0);
+  const expItems  = getExpensesForMonth(thisMonth);
+  const expTotal  = expItems.reduce((a, e) => a + expAmountJPY(e), 0);
+  const expTotalScaled = dashPeriod === 'yearly' ? expTotal * 12 : expTotal;
 
+  const grandTotal = subTotal + expTotalScaled;
+
+  document.getElementById('m-total').textContent      = fmt(grandTotal);
+  document.getElementById('m-total-note').textContent = periodLabel;
+  document.getElementById('m-sub').textContent        = fmt(subTotal);
+  document.getElementById('m-sub-count').textContent  = subs.length + '件';
+  document.getElementById('m-expense').textContent    = fmt(expTotalScaled);
+  document.getElementById('m-expense-count').textContent = expItems.length + '件';
+
+  // ── ゾーン2: 月別推移グラフ（直近6ヶ月） ──
+  const months = [];
+  for (let i = -5; i <= 0; i++) months.push(expMonthStr(i));
+
+  const barData = months.map(m => {
+    const mSubs = subs.reduce((a, s) => a + monthlyAmount(s), 0);
+    const mExp  = getExpensesForMonth(m).reduce((a, e) => a + expAmountJPY(e), 0);
+    return {
+      label: String(parseInt(m.slice(5), 10)) + '月',
+      sub:   mSubs,
+      exp:   mExp,
+      total: mSubs + mExp,
+    };
+  });
+
+  const maxVal = Math.max(...barData.map(d => d.total), 1);
+  const chartH = 130;
+
+  const barEl = document.getElementById('dash-bar-chart');
+  barEl.innerHTML = `<div style="display:flex;align-items:flex-end;gap:6px;height:${chartH + 30}px;padding:0 2px">
+    ${barData.map(d => {
+      const totalH = Math.round((d.total / maxVal) * chartH);
+      const subH   = Math.round((d.sub   / maxVal) * chartH);
+      const expH   = totalH - subH;
+      const kStr   = d.total >= 10000
+        ? (d.total / 10000).toFixed(1) + '万'
+        : d.total > 0 ? fmt(d.total).slice(1) : '';
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:flex-end;height:100%">
+        <div style="font-size:9px;color:var(--text2);white-space:nowrap">${kStr}</div>
+        <div style="width:100%;display:flex;flex-direction:column;border-radius:4px 4px 0 0;overflow:hidden;min-height:${totalH > 0 ? 2 : 0}px">
+          <div style="height:${expH}px;background:var(--danger);min-height:${expH > 0 ? 2 : 0}px"></div>
+          <div style="height:${subH}px;background:var(--accent);min-height:${subH > 0 ? 2 : 0}px"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text2)">${d.label}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // ── ゾーン3: 更新・期限アラート ──
   const renewCount = subs.filter(s => {
     const eff = effectiveRenewDate(s);
     const d = daysUntil(eff);
     return d !== null && d >= 0 && d <= 30;
   }).length;
 
-  document.getElementById('m-sub').textContent      = fmt(subTotal);
-  document.getElementById('m-estimate').textContent = fmt(monthlyEstimate);
-  document.getElementById('m-renew').textContent    = renewCount + '件';
-  document.getElementById('m-count').textContent    = subs.length + '件';
+  const licAlertCount = (DB.licenses || []).filter(l => {
+    if (!l.expiry) return false;
+    const d = daysUntil(l.expiry);
+    return d !== null && d <= 30;
+  }).length;
 
-  // Upcoming: 30日以内 + 手動更新で期限切れのもの
+  const totalAlerts = renewCount + licAlertCount;
+  const badge = document.getElementById('m-renew-badge');
+  badge.innerHTML = totalAlerts > 0
+    ? `<span class="badge badge-warn">${totalAlerts}件</span>`
+    : '';
+
   const upcoming = subs
     .filter(s => s.renew)
     .map(s => {
       const effDate = effectiveRenewDate(s);
-      return { ...s, effDate, days: daysUntil(effDate) };
+      return { ...s, effDate, days: daysUntil(effDate), _kind: 'sub' };
     })
     .filter(s => {
       if (s.days === null) return false;
-      if (s.days <= 30) return true;                      // 30日以内は常に表示
+      if (s.days <= 30) return true;
       const autoRenew = s.autoRenew !== false;
-      return !autoRenew && s.days < 0;                    // 手動更新の期限切れも表示
-    })
-    .sort((a, b) => a.days - b.days);                     // 期限切れ（負の値）が先頭に
+      return !autoRenew && s.days < 0;
+    });
+
+  const licAlerts = (DB.licenses || [])
+    .filter(l => l.expiry)
+    .map(l => ({ ...l, days: daysUntil(l.expiry), _kind: 'license' }))
+    .filter(l => l.days !== null && l.days <= 30);
+
+  const allUpcoming = [...upcoming, ...licAlerts].sort((a, b) => a.days - b.days);
 
   const upEl = document.getElementById('upcoming-list');
-  if (!upcoming.length) {
+  if (!allUpcoming.length) {
     const hasAny = subs.some(s => s.renew);
-    upEl.innerHTML = `<div class="empty-state">
+    upEl.innerHTML = `<div class="empty-state" style="padding:24px 20px">
       <div class="empty-icon">${hasAny ? '✅' : '📅'}</div>
-      <div class="empty-title">${hasAny ? '30日以内の更新予定はありません' : 'サブスクを登録しましょう'}</div>
-      <div class="empty-desc">${hasAny ? '次の更新が近づいたらここに表示されます' : '右下の＋ボタンから追加できます'}</div>
+      <div class="empty-title">${hasAny ? '30日以内のアラートはありません' : 'サブスクを登録しましょう'}</div>
+      <div class="empty-desc">${hasAny ? '更新や期限が近づいたらここに表示されます' : '右下の＋ボタンから追加できます'}</div>
     </div>`;
     return;
   }
 
-  upEl.innerHTML = upcoming.map(s => {
+  upEl.innerHTML = allUpcoming.map(item => {
+    if (item._kind === 'license') {
+      const d = new Date(item.expiry);
+      const isExpired = item.days < 0;
+      const dayCls = item.days <= 7 ? 'urgent' : item.days <= 30 ? 'warn' : '';
+      return `<div class="upcoming-item" style="${isExpired ? 'border-color:#e03534;background:var(--danger-soft)' : ''}" onclick="openLicModal('${item.id}')">
+        <div class="upcoming-date ${dayCls}">
+          <div class="upcoming-date-day">${d.getDate()}</div>
+          <div class="upcoming-date-mon">${d.getMonth()+1}月</div>
+        </div>
+        <div class="upcoming-dot" style="background:#7F77DD"></div>
+        <div style="flex:1;min-width:0">
+          <div class="upcoming-name">${esc(item.name)}</div>
+          <div class="upcoming-sub">🔑 ライセンス期限${item.version ? ' · v'+esc(item.version) : ''}</div>
+        </div>
+        ${renewBadge(item.days, {autoRenew: false})}
+      </div>`;
+    }
+    const s = item;
     const cat = getCat(s.cat);
     const d = new Date(s.effDate);
     const isExpired = s.days < 0 && s.autoRenew === false;
@@ -1338,8 +1871,8 @@ function applySort(id) {
   renderSubs();
 }
 
-function sortedSubs() {
-  const arr = [...DB.subs];
+function sortedSubs(source) {
+  const arr = [...(source || DB.subs)];
   switch(currentSort) {
     case 'renew':
       return arr.sort((a, b) => {
@@ -1366,7 +1899,101 @@ function sortedSubs() {
   }
 }
 
+let subsFilterCat = ''; // '' = すべて
+
+function renderSubsCatFilter() {
+  const cats = allCats().filter(c =>
+    DB.subs.some(s => s.cat === c.id)
+  );
+  const el = document.getElementById('subs-cat-filter');
+  if (!el) return;
+
+  // 「すべて」チップ + 使用中カテゴリのチップ
+  const allChip = `<button class="cat-filter-chip ${subsFilterCat === '' ? 'active' : ''}"
+    style="${subsFilterCat === '' ? 'background:var(--accent);border-color:var(--accent)' : ''}"
+    onclick="setSubsFilter('')">すべて</button>`;
+
+  const catChips = cats.map(c =>
+    `<button class="cat-filter-chip ${subsFilterCat === c.id ? 'active' : ''}"
+      style="${subsFilterCat === c.id ? `background:${c.color};border-color:${c.color}` : ''}"
+      onclick="setSubsFilter('${c.id}')">${c.emoji} ${esc(c.label)}</button>`
+  ).join('');
+
+  el.innerHTML = allChip + catChips;
+}
+
+function setSubsFilter(catId) {
+  subsFilterCat = catId;
+  renderSubs();
+}
+
+function renderSubsBreakdown(subs) {
+  const el = document.getElementById('subs-breakdown');
+  if (!el) return;
+
+  // フィルタ中は内訳非表示
+  if (subsFilterCat) { el.innerHTML = ''; return; }
+  if (!subs.length)  { el.innerHTML = ''; return; }
+
+  const total = subs.reduce((a, s) => a + monthlyAmount(s), 0);
+
+  // カテゴリ別集計
+  const byCat = {};
+  subs.forEach(s => {
+    byCat[s.cat || 'other'] = (byCat[s.cat || 'other'] || 0) + monthlyAmount(s);
+  });
+  const sorted = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const cats   = sorted.map(([id, amt]) => ({ cat: getCat(id), amt }));
+
+  // ── ドーナツグラフ ──
+  const size = 110, cx = 55, cy = 55, r = 44, innerR = 27;
+  let cumulAngle = -Math.PI / 2;
+  let paths = '';
+  cats.forEach(({ cat, amt }) => {
+    const angle = (amt / total) * 2 * Math.PI;
+    if (angle < 0.01) return;
+    const x1  = cx + r * Math.cos(cumulAngle);
+    const y1  = cy + r * Math.sin(cumulAngle);
+    const x2  = cx + r * Math.cos(cumulAngle + angle);
+    const y2  = cy + r * Math.sin(cumulAngle + angle);
+    const ix1 = cx + innerR * Math.cos(cumulAngle);
+    const iy1 = cy + innerR * Math.sin(cumulAngle);
+    const ix2 = cx + innerR * Math.cos(cumulAngle + angle);
+    const iy2 = cy + innerR * Math.sin(cumulAngle + angle);
+    const large = angle > Math.PI ? 1 : 0;
+    paths += `<path d="M${ix1},${iy1} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} L${ix2},${iy2} A${innerR},${innerR} 0 ${large},0 ${ix1},${iy1}" fill="${cat.color}" />`;
+    cumulAngle += angle;
+  });
+  const donut = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">
+    ${paths}
+    <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="9" fill="var(--text2)">合計/月</text>
+    <text x="${cx}" y="${cy + 9}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">${fmt(total).slice(1)}</text>
+    <text x="${cx}" y="${cy + 21}" text-anchor="middle" font-size="8" fill="var(--text2)">円</text>
+  </svg>`;
+
+  // ── 横バー ──
+  const hbars = cats.map(({ cat, amt }) => {
+    const pct = Math.round(amt / total * 100);
+    const w   = Math.round(amt / total * 100);
+    return `<div class="hbar-row">
+      <div class="hbar-label">${cat.emoji} ${esc(cat.label)}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${w}%;background:${cat.color}"></div></div>
+      <div class="hbar-val">${fmt(amt).slice(1)} <span style="color:var(--text3)">${pct}%</span></div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="card" style="padding:14px 16px;margin-bottom:4px">
+    <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:12px">カテゴリ別内訳</div>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      ${donut}
+      <div style="flex:1;min-width:160px">${hbars}</div>
+    </div>
+  </div>`;
+}
+
 function renderSubs() {
+  renderSubsCatFilter();
+
   const el  = document.getElementById('subs-list');
   const lbl = document.getElementById('subs-count-label');
 
@@ -1377,13 +2004,32 @@ function renderSubs() {
       <div class="empty-desc">右下の＋ボタンから追加してください</div>
     </div>`;
     lbl.textContent = '';
+    document.getElementById('subs-breakdown').innerHTML = '';
     return;
   }
 
-  const monthly = DB.subs.reduce((a, s) => a + monthlyAmount(s), 0);
-  lbl.textContent = `計 ${fmt(monthly)}/月`;
+  // フィルタ適用
+  const filtered = subsFilterCat
+    ? DB.subs.filter(s => s.cat === subsFilterCat)
+    : DB.subs;
 
-  const sorted = sortedSubs();
+  const monthly = filtered.reduce((a, s) => a + monthlyAmount(s), 0);
+  lbl.textContent = subsFilterCat
+    ? `${filtered.length}件 · ${fmt(monthly)}/月`
+    : `計 ${fmt(monthly)}/月`;
+
+  // 内訳グラフ（全件対象）
+  renderSubsBreakdown(DB.subs);
+
+  const sorted = sortedSubs(filtered);
+
+  if (!sorted.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">該当するサブスクがありません</div>
+    </div>`;
+    return;
+  }
 
   el.innerHTML = sorted.map(s => {
     const cat      = getCat(s.cat);
@@ -1395,16 +2041,13 @@ function renderSubs() {
       ? `<span style="font-size:10px;color:var(--text2)">🔁</span>`
       : `<span style="font-size:10px;color:var(--text2)">✋</span>`;
 
-    // 並び替えに応じて右カラムの表示を切り替え
     let priceTop, priceBottom;
     if (currentSort === 'amount_desc' || currentSort === 'amount_asc') {
-      // 金額順：月額円換算を大きく表示、元の金額を小さく下に
-      const jpy = monthlyAmountJPY(s);
+      const jpy  = monthlyAmountJPY(s);
       const orig = fmtCurrency(s.amount, s.currency||'JPY', s.rateMode, s.fixedRate);
       priceTop    = `<div class="sub-amount">${fmt(jpy)}<span style="font-size:10px;font-weight:400;color:var(--text2)">/月換算</span></div>`;
       priceBottom = `<div style="font-size:10px;color:var(--text2)">${orig} / ${s.cycle==='monthly'?'月':'年'}</div>`;
     } else {
-      // その他：元の表示
       priceTop    = `<div class="sub-amount">${fmtCurrency(s.amount, s.currency||'JPY', s.rateMode, s.fixedRate)}</div>`;
       priceBottom = `<div style="display:flex;align-items:center;gap:12px">
         ${renewStr ? `<div style="font-size:10px;color:var(--text2)">${renewStr}</div>` : ''}
@@ -1435,7 +2078,11 @@ function renderSubs() {
 /* --- PAYMENTS --- */
 function renderPayments() {
   const el = document.getElementById('pm-list');
-  if (!DB.paymentMethods.length) {
+  const userPms    = DB.paymentMethods.filter(p => !p.isDefault);
+  const defaultPms = DB.paymentMethods.filter(p =>  p.isDefault);
+  const allPms     = [...userPms, ...defaultPms];
+
+  if (!allPms.length) {
     el.innerHTML = `<div class="empty-state">
       <div class="empty-icon">💳</div>
       <div class="empty-title">支払い方法を登録してください</div>
@@ -1443,24 +2090,31 @@ function renderPayments() {
     </div>`;
     return;
   }
-  el.innerHTML = DB.paymentMethods.map(pm => {
-    const usedIn = DB.subs.filter(s => s.pmId === pm.id).length;
+
+  el.innerHTML = allPms.map(pm => {
+    const usedIn = DB.subs.filter(s => s.pmId === pm.id).length
+                 + (DB.expenses||[]).filter(e => e.pmId === pm.id).length;
     let label = pm.name;
     if (pm.type === 'card') {
-      label = pm.name;
       if (pm.brand) label += ' (' + pm.brand + ')';
       if (pm.last4) label += ' ****' + pm.last4;
     }
     const color = pm.color || PM_TYPE_COLORS[pm.type] || '#888';
     const icon  = pm.icon  || PM_TYPE_ICONS[pm.type]  || '📦';
     const typeLabel = PM_TYPE_LABELS[pm.type] || 'その他';
+    const defaultBadge = pm.isDefault
+      ? `<span class="badge badge-gray" style="font-size:9px;margin-left:6px">デフォルト</span>`
+      : '';
+    const deleteBtn = pm.isDefault
+      ? ''
+      : `<button class="btn btn-ghost btn-sm" onclick="deletePm('${pm.id}')">削除</button>`;
     return `<div class="pm-row">
       <div class="pm-chip" style="background:${color}">${icon}</div>
       <div class="pm-info">
-        <div class="pm-name">${esc(label)}</div>
+        <div class="pm-name">${esc(label)}${defaultBadge}</div>
         <div class="pm-detail">${typeLabel} · ${usedIn}件で使用中</div>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="deletePm('${pm.id}')">削除</button>
+      ${deleteBtn}
     </div>`;
   }).join('');
 }
@@ -1683,13 +2337,8 @@ function openSubModal(subId) {
 
   // Build payment method select
   const pmSel = document.getElementById('f-pm');
-  pmSel.innerHTML = '<option value="">— 未設定 —</option>' +
-    DB.paymentMethods.map(pm => {
-      const lbl = pm.type === 'card'
-        ? pm.name + (pm.last4 ? ' ****'+pm.last4 : '')
-        : pm.name;
-      return `<option value="${pm.id}" ${sub?.pmId===pm.id?'selected':''}>${esc(lbl)}</option>`;
-    }).join('');
+  pmSel.innerHTML = buildPmOptions(sub?.pmId || null);
+  pmSel.onchange = () => onPmSelectChange('f-pm', 'modal-sub');
 
   document.getElementById('sub-delete-zone').style.display = sub ? 'block' : 'none';
   document.getElementById('modal-sub').classList.add('open');
@@ -1771,11 +2420,23 @@ const PM_GRID_ITEMS = [
   { type:'instant',      icon:'📱', label:'d払い',       color:'#BF0000', name:'d払い' },
   { type:'instant',      icon:'🚃', label:'Suica',       color:'#5BB8A0', name:'Suica' },
   { type:'instant',      icon:'💙', label:'PayPal',      color:'#003087', name:'PayPal' },
-  { type:'cash',         icon:'💴', label:'現金',        color:'#888780' },
-  { type:'bank',         icon:'🏦', label:'銀行振込',    color:'#1D9E75' },
-  { type:'convenience',  icon:'🏪', label:'コンビニ',    color:'#D85A30' },
   { type:'other',        icon:'📦', label:'その他',      color:'#7F77DD', form:true },
 ];
+
+// 支払い方法セレクトで「新しい支払い方法を追加する」を選んだ時の処理
+function onPmSelectChange(selectId, returnModalId) {
+  const sel = document.getElementById(selectId);
+  if (sel.value !== '__add_new__') return;
+  // 選択を未設定に戻す
+  sel.value = '';
+  // 現在のモーダルを閉じる
+  closeModal(returnModalId);
+  // 支払いタブへ遷移
+  const paymentsBtn = document.querySelector('.nav-item:nth-child(4)');
+  if (paymentsBtn) gotoSection('payments', paymentsBtn);
+  // 支払い方法追加モーダルを開く
+  setTimeout(() => openPmModal(), 150);
+}
 
 function buildPmGrid() {
   const grid = document.getElementById('pm-grid');
@@ -1969,6 +2630,690 @@ function showToast(msg) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+/* ============================================================
+   EXPENSE — CONSTANTS & STATE
+   ============================================================ */
+const EXP_TYPE_LABELS = {
+  fixed:    '🏠 固定費',
+  variable: '🛒 変動費',
+};
+const EXP_TYPE_COLORS = {
+  fixed: '#2A6AFF', variable: '#1D9E75',
+};
+
+// 支出専用カテゴリ（サブスクのPRESET_CATSとは独立）
+const EXP_CATS = {
+  fixed: [
+    { id:'exp_tax',       emoji:'🏛️', label:'税金',       color:'#7F77DD' },
+    { id:'exp_comm',      emoji:'📡', label:'通信費',     color:'#2A6AFF' },
+    { id:'exp_housing',   emoji:'🏠', label:'住居費',     color:'#D85A30' },
+    { id:'exp_utility',   emoji:'💡', label:'水道光熱費', color:'#BA7517' },
+    { id:'exp_insurance', emoji:'🛡️', label:'保険料',     color:'#1D9E75' },
+    { id:'exp_car',       emoji:'🚗', label:'車両費',     color:'#888780' },
+    { id:'exp_childcare', emoji:'👶', label:'保育料',     color:'#D4537E' },
+    { id:'exp_edu',       emoji:'🎓', label:'学費',       color:'#0EA5E9' },
+    { id:'exp_transport', emoji:'🚃', label:'交通費',     color:'#5BB8A0' },
+    { id:'exp_other_f',   emoji:'📦', label:'その他',     color:'#888780' },
+  ],
+  variable: [
+    { id:'exp_food',      emoji:'🍽️', label:'食費',       color:'#D85A30' },
+    { id:'exp_daily',     emoji:'🧴', label:'日用品費',   color:'#1D9E75' },
+    { id:'exp_medical',   emoji:'💊', label:'医療費',     color:'#E24B4A' },
+    { id:'exp_learning',  emoji:'📚', label:'教育費',     color:'#0EA5E9' },
+    { id:'exp_clothes',   emoji:'👗', label:'被服費',     color:'#D4537E' },
+    { id:'exp_beauty',    emoji:'💄', label:'美容費',     color:'#BA7517' },
+    { id:'exp_social',    emoji:'🤝', label:'交際費',     color:'#7F77DD' },
+    { id:'exp_leisure',   emoji:'🎉', label:'娯楽費',     color:'#2A6AFF' },
+    { id:'exp_special',   emoji:'💸', label:'特別費',     color:'#888780' },
+    { id:'exp_misc',      emoji:'📦', label:'雑費',       color:'#888780' },
+    { id:'exp_other_v',   emoji:'📦', label:'その他',     color:'#888780' },
+  ],
+};
+
+function getExpCat(type, catId) {
+  const list = EXP_CATS[type] || EXP_CATS.fixed;
+  return list.find(c => c.id === catId) || list[list.length - 1];
+}
+
+let expView = 'list';
+let expEditId = null;
+let expCurrentType = 'fixed';
+let expMonthOffset = 0;
+let expMonthlyOn = false; // 毎月トグル状態
+
+function toggleMonthlyActive(id) {
+  const exp = (DB.expenses||[]).find(e => e.id === id);
+  if (!exp) return;
+  exp.monthlyActive = !exp.monthlyActive;
+  saveData();
+  render();
+  showToast(exp.monthlyActive ? '毎月ONにしました 🔁' : '毎月OFFにしました');
+}
+
+function setExpMonthly(val) {
+  expMonthlyOn = val;
+  document.getElementById('ef-monthly-on') ?.classList.toggle('active',  val);
+  document.getElementById('ef-monthly-off')?.classList.toggle('active', !val);
+  const note = document.getElementById('ef-monthly-note');
+  if (note) note.style.display = val ? 'block' : 'none';
+}
+
+/* ============================================================
+   EXPENSE — 月別集計エンジン
+   ============================================================ */
+// 指定月(ym = 'YYYY-MM')の実効支出リストを返す
+// 通常レコード + 有効なmonthlyテンプレートの展開分を合算
+function getExpensesForMonth(ym) {
+  const expenses = DB.expenses || [];
+
+  // 1. 通常レコード（monthly=falseまたはunset）で日付がその月のもの
+  const regular = expenses.filter(e =>
+    !e.monthly && (e.date || '').startsWith(ym)
+  );
+
+  // 2. monthlyテンプレート：startDateがym以前 かつ monthlyActive=true
+  const templates = expenses.filter(e => {
+    if (!e.monthly) return false;
+    if (!e.monthlyActive) return false; // OFFになっているものは除外
+    const start = e.date ? e.date.slice(0,7) : '0000-00';
+    return start <= ym;
+  });
+
+  // テンプレートを「その月の仮想レコード」として展開
+  const expanded = templates.map(e => ({
+    ...e,
+    _isTemplateExpansion: true,
+    _templateId: e.id,
+    date: ym + '-01', // 集計用の仮日付
+  }));
+
+  return [...regular, ...expanded];
+}
+
+/* ============================================================
+   EXPENSE — UTILITIES
+   ============================================================ */
+function expMonthStr(offset) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function expAmountJPY(exp) {
+  return Math.round(toJPY(exp.amount || 0, exp.currency || 'JPY', 'variable', null));
+}
+
+/* ============================================================
+   EXPENSE — RENDER
+   ============================================================ */
+function setExpView(v, btn) {
+  expView = v;
+  document.querySelectorAll('#exp-segment .seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderExpense();
+}
+
+function shiftExpMonth(dir) {
+  expMonthOffset += dir;
+  renderExpMonthly();
+}
+
+function renderExpense() {
+  document.getElementById('exp-view-list').style.display    = expView === 'list'    ? 'block' : 'none';
+  document.getElementById('exp-view-monthly').style.display = expView === 'monthly' ? 'block' : 'none';
+  document.getElementById('exp-view-chart').style.display   = expView === 'chart'   ? 'block' : 'none';
+
+  if (expView === 'list')    renderExpList();
+  if (expView === 'monthly') renderExpMonthly();
+  if (expView === 'chart')   renderExpChart();
+}
+
+function renderExpList() {
+  const typeFilter = document.getElementById('exp-filter-type')?.value || '';
+  const allExp = DB.expenses || [];
+
+  // テンプレート（monthly=true）と通常レコードに分離
+  const templates = allExp.filter(e => e.monthly && (!typeFilter || e.type === typeFilter));
+  const regular   = allExp.filter(e => !e.monthly && (!typeFilter || e.type === typeFilter))
+                          .sort((a,b) => (b.date||'').localeCompare(a.date||''));
+
+  const el = document.getElementById('exp-list');
+  if (!templates.length && !regular.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">💸</div>
+      <div class="empty-title">支出がまだありません</div>
+      <div class="empty-desc">右下の＋ボタンから支出を追加できます</div>
+    </div>`;
+    return;
+  }
+
+  const renderRow = (e, isTemplate) => {
+    const cat = getExpCat(e.type, e.cat);
+    const typeLabel = EXP_TYPE_LABELS[e.type] || e.type;
+    const typeColor = EXP_TYPE_COLORS[e.type] || '#888';
+    const amtJPY = expAmountJPY(e);
+    const dateStr = e.date ? e.date.slice(0,7).replace('-','/') : '—';
+
+    const badge = isTemplate
+      ? `<span class="badge ${e.monthlyActive ? 'badge-info' : 'badge-gray'}" style="font-size:9px;margin-left:4px">${e.monthlyActive ? '🔁 毎月ON' : '─ OFF'}</span>`
+      : '';
+
+    const toggle = isTemplate
+      ? `<button class="btn btn-ghost btn-sm" style="font-size:11px;padding:5px 10px;white-space:nowrap"
+           onclick="event.stopPropagation();toggleMonthlyActive('${e.id}')">
+           ${e.monthlyActive ? 'OFFにする' : 'ONにする'}
+         </button>`
+      : '';
+
+    return `<div class="exp-row" onclick="openExpModal('${e.id}')">
+      <div class="exp-type-icon" style="background:${typeColor}22">
+        <span style="font-size:20px">${cat.emoji}</span>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="sub-name">${esc(e.title || '無題')}${badge}</div>
+        <div class="sub-meta">
+          <span style="color:${typeColor};font-weight:600;font-size:10px">${typeLabel}</span>
+          <span>·</span><span>${esc(cat.label)}</span>
+          <span>·</span><span>${isTemplate ? dateStr + '〜' : dateStr}</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="sub-amount">${fmt(amtJPY)}<span style="font-size:10px;color:var(--text2)">${isTemplate ? '/月' : ''}</span></div>
+        ${toggle}
+      </div>
+    </div>`;
+  };
+
+  let html = '';
+  if (templates.length) {
+    html += `<div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;padding-left:2px">🔁 毎月リピート</div>`;
+    html += templates.map(e => renderRow(e, true)).join('');
+    if (regular.length) html += `<div class="divider" style="margin:12px 0"></div><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;padding-left:2px">📋 実績</div>`;
+  }
+  html += regular.map(e => renderRow(e, false)).join('');
+  el.innerHTML = html;
+}
+
+function renderExpMonthly() {
+  const ms = expMonthStr(expMonthOffset);
+  document.getElementById('exp-month-label').textContent =
+    ms.slice(0,4) + '年' + String(parseInt(ms.slice(5),10)) + '月';
+
+  const items = getExpensesForMonth(ms);
+  const total = items.reduce((a, e) => a + expAmountJPY(e), 0);
+
+  // type breakdown
+  const byType = {};
+  items.forEach(e => {
+    byType[e.type] = (byType[e.type] || 0) + expAmountJPY(e);
+  });
+
+  const cardsEl = document.getElementById('exp-monthly-cards');
+  cardsEl.innerHTML = `
+    <div class="metric-card"><div class="metric-label">合計支出</div><div class="metric-value danger">${fmt(total)}</div></div>
+    <div class="metric-card"><div class="metric-label">件数</div><div class="metric-value">${items.length}件</div></div>
+    <div class="metric-card"><div class="metric-label">固定費</div><div class="metric-value accent">${fmt(byType.fixed||0)}</div></div>
+    <div class="metric-card"><div class="metric-label">変動費</div><div class="metric-value" style="color:var(--success)">${fmt(byType.variable||0)}</div></div>
+  `;
+
+  // category breakdown - itemごとにtype情報も保持
+  const byCat = {};
+  items.forEach(e => {
+    const key = (e.type||'fixed') + ':' + (e.cat || 'exp_other_f');
+    byCat[key] = { amt: (byCat[key]?.amt || 0) + expAmountJPY(e), type: e.type||'fixed', catId: e.cat };
+  });
+
+  const sorted = Object.entries(byCat).sort((a,b) => b[1].amt - a[1].amt);
+  const catsEl = document.getElementById('exp-monthly-cats');
+  if (!sorted.length) {
+    catsEl.innerHTML = '<div style="text-align:center;color:var(--text2);font-size:13px;padding:20px 0">この月の支出はありません</div>';
+    return;
+  }
+  catsEl.innerHTML = sorted.map(([, {amt, type, catId}]) => {
+    const cat = getExpCat(type, catId);
+    const pct = total > 0 ? Math.round(amt / total * 100) : 0;
+    return `<div class="cat-summary-row">
+      <span style="font-size:20px;width:28px;text-align:center">${cat.emoji}</span>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:500;color:var(--text)">${esc(cat.label)}</span>
+          <span style="font-size:12px;font-weight:600;color:var(--text)">${fmt(amt)} <span style="color:var(--text2);font-weight:400">${pct}%</span></span>
+        </div>
+        <div class="cat-summary-bar-wrap">
+          <div class="cat-summary-bar" style="width:${pct}%;background:${cat.color}"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderExpChart() {
+  // Bar chart: 直近6ヶ月
+  const months = [];
+  for (let i = -5; i <= 0; i++) months.push(expMonthStr(i));
+
+  const monthTotals = months.map(m => ({
+    label: String(parseInt(m.slice(5),10)) + '月',
+    total: getExpensesForMonth(m).reduce((a,e) => a + expAmountJPY(e), 0),
+  }));
+
+  const maxVal = Math.max(...monthTotals.map(m => m.total), 1);
+
+  const barEl = document.getElementById('exp-bar-chart');
+  barEl.innerHTML = `<div class="bar-chart-wrap">
+    ${monthTotals.map(m => {
+      const h = Math.round((m.total / maxVal) * 120);
+      const kStr = m.total >= 10000 ? (m.total/10000).toFixed(1)+'万' : fmt(m.total).slice(1);
+      return `<div class="bar-col">
+        ${m.total > 0 ? `<div class="bar-amount">${kStr}</div>` : ''}
+        <div class="bar-fill" style="height:${h}px"></div>
+        <div class="bar-label">${m.label}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // Pie chart: 今月カテゴリ別
+  const thisMonth = expMonthStr(0);
+  const thisItems = getExpensesForMonth(thisMonth);
+  const thisTotal = thisItems.reduce((a,e) => a + expAmountJPY(e), 0);
+  const byCat = {};
+  thisItems.forEach(e => {
+    const key = (e.type||'fixed') + ':' + (e.cat||'exp_other_f');
+    byCat[key] = { amt: (byCat[key]?.amt||0) + expAmountJPY(e), type: e.type||'fixed', catId: e.cat };
+  });
+  const pieData = Object.entries(byCat).sort((a,b)=>b[1].amt-a[1].amt).map(([, {amt, type, catId}]) => ({
+    cat: getExpCat(type, catId), amt, pct: thisTotal>0 ? Math.round(amt/thisTotal*100) : 0
+  }));
+
+  const pieEl = document.getElementById('exp-pie-chart');
+  if (!pieData.length) {
+    pieEl.innerHTML = '<div style="text-align:center;color:var(--text2);font-size:13px;padding:20px 0">今月の支出はありません</div>';
+    return;
+  }
+
+  // SVG donut
+  const size = 120, cx = 60, cy = 60, r = 48, innerR = 30;
+  let cumulAngle = -Math.PI/2;
+  let paths = '';
+  pieData.forEach(d => {
+    if (d.pct === 0) return;
+    const angle = (d.amt / thisTotal) * 2 * Math.PI;
+    const x1 = cx + r * Math.cos(cumulAngle);
+    const y1 = cy + r * Math.sin(cumulAngle);
+    const x2 = cx + r * Math.cos(cumulAngle + angle);
+    const y2 = cy + r * Math.sin(cumulAngle + angle);
+    const ix1 = cx + innerR * Math.cos(cumulAngle);
+    const iy1 = cy + innerR * Math.sin(cumulAngle);
+    const ix2 = cx + innerR * Math.cos(cumulAngle + angle);
+    const iy2 = cy + innerR * Math.sin(cumulAngle + angle);
+    const large = angle > Math.PI ? 1 : 0;
+    paths += `<path d="M${ix1},${iy1} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} L${ix2},${iy2} A${innerR},${innerR} 0 ${large},0 ${ix1},${iy1}" fill="${d.cat.color}" />`;
+    cumulAngle += angle;
+  });
+
+  const legend = pieData.map(d => `
+    <div class="pie-legend-item">
+      <div class="pie-dot" style="background:${d.cat.color}"></div>
+      <span class="pie-legend-label">${esc(d.cat.label)}</span>
+      <span class="pie-legend-val">${fmt(d.amt)}</span>
+      <span class="pie-legend-pct">${d.pct}%</span>
+    </div>`).join('');
+
+  pieEl.innerHTML = `
+    <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">${paths}</svg>
+      <div class="pie-legend" style="flex:1;min-width:160px">${legend}</div>
+    </div>`;
+}
+
+/* ============================================================
+   EXPENSE — MODAL
+   ============================================================ */
+function openExpModal(id) {
+  expEditId = id || null;
+  const isEdit = !!id;
+  document.getElementById('exp-modal-title').textContent = isEdit ? '支出を編集' : '支出を追加';
+  document.getElementById('exp-delete-zone').style.display = isEdit ? 'block' : 'none';
+
+  // populate pm select
+  const pmSel = document.getElementById('ef-pm');
+  pmSel.innerHTML = buildPmOptions(null);
+  pmSel.onchange = () => onPmSelectChange('ef-pm', 'modal-exp');
+
+  if (isEdit) {
+    const e = (DB.expenses||[]).find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('ef-title').value    = e.title || '';
+    document.getElementById('ef-amount').value   = e.amount || '';
+    document.getElementById('ef-currency').value = e.currency || 'JPY';
+    document.getElementById('ef-date').value     = e.date || '';
+    pmSel.value  = e.pmId || '';
+    document.getElementById('ef-note').value     = e.note || '';
+    setExpType(e.type || 'fixed', null);
+    // カテゴリを種別セット後に復元
+    const catSel = document.getElementById('ef-cat');
+    if (catSel) catSel.value = e.cat || '';
+    // 毎月状態を復元
+    setExpMonthly(e.monthly && e.monthlyActive ? true : false);
+  } else {
+    document.getElementById('ef-title').value    = '';
+    document.getElementById('ef-amount').value   = '';
+    document.getElementById('ef-currency').value = 'JPY';
+    document.getElementById('ef-date').value     = today();
+    pmSel.value  = '';
+    document.getElementById('ef-note').value     = '';
+    setExpType('fixed', null);
+    setExpMonthly(false);
+  }
+  updateExpJpyPreview();
+  document.getElementById('modal-exp').classList.add('open');
+}
+
+function setExpType(type, btn) {
+  expCurrentType = type;
+  document.querySelectorAll('.exp-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+  // 毎月トグルは固定費のみ表示
+  const monthlyWrap = document.getElementById('ef-monthly-wrap');
+  if (monthlyWrap) {
+    monthlyWrap.style.display = type === 'fixed' ? 'block' : 'none';
+    if (type !== 'fixed') setExpMonthly(false); // 変動費切替時はOFFリセット
+  }
+  // カテゴリセレクトを種別に合わせて更新
+  const catSel = document.getElementById('ef-cat');
+  if (catSel) {
+    const cats = EXP_CATS[type] || EXP_CATS.fixed;
+    catSel.innerHTML = cats.map(c => `<option value="${c.id}">${c.emoji} ${c.label}</option>`).join('');
+  }
+}
+
+function updateExpJpyPreview() {
+  const currency = document.getElementById('ef-currency').value;
+  const amount   = parseFloat(document.getElementById('ef-amount').value) || 0;
+  const prev     = document.getElementById('ef-jpy-preview');
+  if (currency === 'JPY' || !amount) { prev.style.display = 'none'; return; }
+  const jpy = toJPY(amount, currency, 'variable', null);
+  if (jpy) {
+    prev.style.display = 'block';
+    prev.textContent = '≈ ¥' + Math.round(jpy).toLocaleString('ja-JP') + ' （変動レート）';
+  } else {
+    prev.style.display = 'none';
+  }
+}
+
+function saveExpense() {
+  const title = document.getElementById('ef-title').value.trim();
+  if (!title) { showToast('タイトルを入力してください'); return; }
+  const amount = parseFloat(document.getElementById('ef-amount').value);
+  if (isNaN(amount) || amount < 0) { showToast('金額を入力してください'); return; }
+
+  const isMonthly = expCurrentType === 'fixed' && expMonthlyOn;
+  const obj = {
+    title,
+    type:          expCurrentType,
+    amount,
+    currency:      document.getElementById('ef-currency').value || 'JPY',
+    date:          document.getElementById('ef-date').value || today(),
+    cat:           document.getElementById('ef-cat').value || 'exp_other_f',
+    pmId:          document.getElementById('ef-pm').value || null,
+    note:          document.getElementById('ef-note').value.trim(),
+    monthly:       isMonthly,
+    monthlyActive: isMonthly, // 新規登録時はONならアクティブ
+  };
+
+  if (!DB.expenses) DB.expenses = [];
+
+  if (expEditId) {
+    const idx = DB.expenses.findIndex(e => e.id === expEditId);
+    if (idx >= 0) {
+      const existing = DB.expenses[idx];
+      // monthly=trueの既存レコードでOFFに変えた場合はmonthlyActiveをfalseに
+      const newMonthlyActive = obj.monthly
+        ? (existing.monthlyActive !== false ? true : existing.monthlyActive)
+        : false;
+      DB.expenses[idx] = { ...existing, ...obj, monthlyActive: newMonthlyActive };
+    }
+  } else {
+    DB.expenses.push({ id: genId(), createdAt: new Date().toISOString(), ...obj });
+  }
+  saveData();
+  closeModal('modal-exp');
+  render();
+  showToast(expEditId ? '更新しました ✓' : '追加しました ✓');
+}
+
+function deleteExpense() {
+  if (!expEditId) return;
+  if (!confirm('この支出を削除しますか？')) return;
+  DB.expenses = (DB.expenses||[]).filter(e => e.id !== expEditId);
+  saveData();
+  closeModal('modal-exp');
+  render();
+  showToast('削除しました');
+}
+
+/* ============================================================
+   LICENSE — CONSTANTS & STATE
+   ============================================================ */
+const LIC_CAT_LABELS = { software: '💻 ソフト・アプリ', os_device: '🖥️ OS・デバイス' };
+const LIC_CAT_COLORS = { software: '#2A6AFF', os_device: '#7F77DD' };
+
+let licEditId = null;
+let licCurrentCat = 'software';
+let licKeyVisible = {}; // id → bool（一覧でのマスク状態）
+let licModalKeyVisible = false; // モーダル内の表示状態
+
+/* ============================================================
+   LICENSE — RENDER
+   ============================================================ */
+function renderLicense() {
+  const catFilter = document.getElementById('lic-filter-cat')?.value || '';
+  const items = (DB.licenses || [])
+    .filter(l => !catFilter || l.category === catFilter)
+    .sort((a, b) => {
+      // 期限切れ・期限近い順 → 名前順
+      const da = a.expiry ? daysUntil(a.expiry) : 9999;
+      const db = b.expiry ? daysUntil(b.expiry) : 9999;
+      return da - db;
+    });
+
+  const el = document.getElementById('lic-list');
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔑</div>
+      <div class="empty-title">ライセンスがまだありません</div>
+      <div class="empty-desc">右下の＋ボタンから追加できます</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = items.map(l => {
+    const catColor = LIC_CAT_COLORS[l.category] || '#888';
+    const catLabel = LIC_CAT_LABELS[l.category] || l.category;
+    const days = l.expiry ? daysUntil(l.expiry) : null;
+    const expiryBadge = days === null
+      ? `<span class="badge badge-gray">永続</span>`
+      : days < 0
+        ? `<span class="badge badge-danger">期限切れ</span>`
+        : days <= 7
+          ? `<span class="badge badge-danger">${days}日後</span>`
+          : days <= 30
+            ? `<span class="badge badge-warn">${days}日後</span>`
+            : `<span class="badge badge-ok">${l.expiry.replaceAll('-','/')}</span>`;
+
+    const isVisible = licKeyVisible[l.id];
+    const keyDisplay = l.licenseKey
+      ? isVisible
+        ? `<span class="lic-key-val">${esc(l.licenseKey)}</span>`
+        : `<span class="lic-key-val">●●●●－●●●●－●●●●</span>`
+      : `<span class="lic-key-val" style="color:var(--text3)">未登録</span>`;
+
+    const metaParts = [];
+    if (l.os && l.os.length) metaParts.push(l.os.join(' / '));
+    if (l.seats)   metaParts.push(`${l.seats}台`);
+    if (l.version) metaParts.push(`v${esc(l.version)}`);
+    if (l.purchaseDate) metaParts.push(l.purchaseDate.replaceAll('-','/') + '購入');
+    if (l.purchasePrice) {
+      const sym = CURRENCY_SYMBOLS[l.currency||'JPY'] || '¥';
+      metaParts.push(`${sym}${Number(l.purchasePrice).toLocaleString()}`);
+    }
+
+    return `<div class="lic-row" onclick="openLicModal('${l.id}')">
+      <div class="lic-header">
+        <div class="lic-icon" style="background:${catColor}22">
+          <span>${l.category === 'os_device' ? '🖥️' : '💻'}</span>
+        </div>
+        <div class="lic-name">${esc(l.name)}</div>
+        ${expiryBadge}
+      </div>
+      ${l.licenseKey ? `<div class="lic-key-row" onclick="event.stopPropagation()">
+        ${keyDisplay}
+        <button class="lic-key-toggle" onclick="toggleLicKeyInList('${l.id}')">${isVisible ? '🙈' : '👁'}</button>
+      </div>` : ''}
+      <div class="lic-meta">
+        <span class="badge badge-gray" style="font-size:9px">${catLabel}</span>
+        ${metaParts.map(p => `<span style="font-size:11px;color:var(--text2)">${p}</span>`).join('<span style="color:var(--text3)">·</span>')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleLicKeyInList(id) {
+  licKeyVisible[id] = !licKeyVisible[id];
+  renderLicense();
+}
+
+/* ============================================================
+   LICENSE — MODAL
+   ============================================================ */
+function toggleOsChip(btn) {
+  btn.classList.toggle('active');
+}
+
+function getSelectedOs() {
+  return [...document.querySelectorAll('#lf-os-chips .os-chip.active')]
+    .map(b => b.dataset.os);
+}
+
+function setSelectedOs(osList) {
+  document.querySelectorAll('#lf-os-chips .os-chip').forEach(b => {
+    b.classList.toggle('active', (osList||[]).includes(b.dataset.os));
+  });
+}
+
+function setLicCat(cat) {
+  licCurrentCat = cat;
+  document.querySelectorAll('[data-lcat]').forEach(b => {
+    b.classList.toggle('active', b.dataset.lcat === cat);
+  });
+}
+
+function toggleLicKeyVisible() {
+  licModalKeyVisible = !licModalKeyVisible;
+  const input = document.getElementById('lf-key');
+  const eye   = document.getElementById('lf-key-eye');
+  if (input) input.type = licModalKeyVisible ? 'text' : 'password';
+  if (eye)   eye.textContent = licModalKeyVisible ? '🙈' : '👁';
+}
+
+function openLicModal(id) {
+  licEditId = id || null;
+  const isEdit = !!id;
+  licModalKeyVisible = false;
+  document.getElementById('lic-modal-title').textContent = isEdit ? 'ライセンスを編集' : 'ライセンスを追加';
+  document.getElementById('lic-delete-zone').style.display = isEdit ? 'block' : 'none';
+
+  // モーダルのkeyフィールドをパスワード表示に戻す
+  const keyInput = document.getElementById('lf-key');
+  if (keyInput) keyInput.type = 'password';
+  const eye = document.getElementById('lf-key-eye');
+  if (eye) eye.textContent = '👁';
+
+  if (isEdit) {
+    const l = (DB.licenses||[]).find(x => x.id === id);
+    if (!l) return;
+    document.getElementById('lf-name').value          = l.name || '';
+    document.getElementById('lf-key').value           = l.licenseKey || '';
+    document.getElementById('lf-purchase-date').value = l.purchaseDate || '';
+    document.getElementById('lf-expiry').value        = l.expiry || '';
+    document.getElementById('lf-price').value         = l.purchasePrice || '';
+    document.getElementById('lf-currency').value      = l.currency || 'JPY';
+    document.getElementById('lf-version').value       = l.version || '';
+    document.getElementById('lf-seats').value         = l.seats || '';
+    document.getElementById('lf-note').value          = l.note || '';
+    setLicCat(l.category || 'software');
+    setSelectedOs(l.os || []);
+  } else {
+    document.getElementById('lf-name').value          = '';
+    document.getElementById('lf-key').value           = '';
+    document.getElementById('lf-purchase-date').value = today();
+    document.getElementById('lf-expiry').value        = '';
+    document.getElementById('lf-price').value         = '';
+    document.getElementById('lf-currency').value      = 'JPY';
+    document.getElementById('lf-version').value       = '';
+    document.getElementById('lf-seats').value         = '';
+    document.getElementById('lf-note').value          = '';
+    setLicCat('software');
+    setSelectedOs([]);
+  }
+  document.getElementById('modal-lic').classList.add('open');
+}
+
+function saveLicense() {
+  const name = document.getElementById('lf-name').value.trim();
+  if (!name) { showToast('製品名を入力してください'); return; }
+
+  const obj = {
+    name,
+    category:     licCurrentCat,
+    licenseKey:   document.getElementById('lf-key').value.trim(),
+    purchaseDate: document.getElementById('lf-purchase-date').value || '',
+    expiry:       document.getElementById('lf-expiry').value || '',
+    purchasePrice: parseFloat(document.getElementById('lf-price').value) || null,
+    currency:     document.getElementById('lf-currency').value || 'JPY',
+    os:           getSelectedOs(),
+    version:      document.getElementById('lf-version').value.trim(),
+    seats:        parseInt(document.getElementById('lf-seats').value) || null,
+    note:         document.getElementById('lf-note').value.trim(),
+  };
+
+  if (!DB.licenses) DB.licenses = [];
+
+  if (licEditId) {
+    const idx = DB.licenses.findIndex(l => l.id === licEditId);
+    if (idx >= 0) DB.licenses[idx] = { ...DB.licenses[idx], ...obj };
+  } else {
+    DB.licenses.push({ id: genId(), createdAt: new Date().toISOString(), ...obj });
+  }
+  saveData();
+  closeModal('modal-lic');
+  render();
+  showToast(licEditId ? '更新しました ✓' : '追加しました ✓');
+}
+
+function deleteLicense() {
+  if (!licEditId) return;
+  if (!confirm('このライセンスを削除しますか？')) return;
+  DB.licenses = (DB.licenses||[]).filter(l => l.id !== licEditId);
+  saveData();
+  closeModal('modal-lic');
+  render();
+  showToast('削除しました');
+}
+
+/* ============================================================
+   SERVICE WORKER 登録
+   ============================================================ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/substracker/sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
 }
 
 /* ============================================================
