@@ -450,6 +450,41 @@ body {
 .hbar-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
 .hbar-fill  { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
 .hbar-val   { font-size: 11px; color: var(--text2); white-space: nowrap; min-width: 56px; text-align: right; }
+
+/* Dashboard config row */
+.dash-cfg-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: var(--bg);
+  border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+.dash-cfg-label { flex: 1; font-size: 14px; color: var(--text); }
+.dash-cfg-fixed { font-size: 11px; color: var(--text3); }
+.dash-cfg-order { display: flex; flex-direction: column; gap: 2px; }
+.dash-cfg-btn {
+  background: var(--bg2); border: 0.5px solid var(--border);
+  border-radius: 4px; width: 28px; height: 20px; cursor: pointer;
+  font-size: 10px; display: flex; align-items: center; justify-content: center;
+  color: var(--text2); font-family: inherit;
+  transition: background 0.15s;
+}
+.dash-cfg-btn:hover { background: var(--bg3); }
+.dash-cfg-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* Toggle switch */
+.toggle-wrap { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-slider {
+  position: absolute; inset: 0; border-radius: 12px;
+  background: var(--bg3); cursor: pointer; transition: background 0.2s;
+}
+.toggle-slider::after {
+  content: ''; position: absolute; width: 18px; height: 18px;
+  border-radius: 50%; background: white; top: 3px; left: 3px;
+  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-wrap input:checked + .toggle-slider { background: var(--accent); }
+.toggle-wrap input:checked + .toggle-slider::after { transform: translateX(20px); }
 </style>
 </head>
 <body>
@@ -469,10 +504,10 @@ body {
   </div>
 
   <!-- ===== DASHBOARD ===== -->
-  <div class="section active" id="sec-dashboard">
+  <div class="section active" id="sec-dashboard" style="display:flex;flex-direction:column">
 
-    <!-- ゾーン1: 今月のサマリー -->
-    <div style="margin-bottom:18px">
+    <!-- ゾーン1: 今月のサマリー（固定・必須） -->
+    <div style="margin-bottom:18px" id="dash-zone-summary">
       <div class="period-row" style="margin-bottom:12px">
         <span class="sec-title">今月のサマリー</span>
         <div class="period-toggle">
@@ -480,7 +515,6 @@ body {
           <button class="period-btn" onclick="setPeriod('yearly',this)">年</button>
         </div>
       </div>
-      <!-- メイン: 総支出（大きく） -->
       <div class="card" style="margin-bottom:10px;padding:18px 20px">
         <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px">
           <span style="font-size:12px;color:var(--text2)">今月の総支出（サブスク＋支出）</span>
@@ -488,7 +522,6 @@ body {
         </div>
         <div style="font-size:32px;font-weight:700;color:var(--text);letter-spacing:-1px" id="m-total">¥0</div>
       </div>
-      <!-- サブ: 内訳2カード -->
       <div class="metric-grid">
         <div class="metric-card">
           <div class="metric-label">🔄 サブスク</div>
@@ -504,7 +537,7 @@ body {
     </div>
 
     <!-- ゾーン2: 月別推移グラフ -->
-    <div style="margin-bottom:18px">
+    <div style="margin-bottom:18px" id="dash-zone-chart">
       <div class="sec-header" style="margin-bottom:10px">
         <span class="sec-title">月別推移</span>
         <div style="display:flex;gap:8px;align-items:center">
@@ -518,13 +551,19 @@ body {
     </div>
 
     <!-- ゾーン3: 更新・期限アラート -->
-    <div>
+    <div id="dash-zone-alerts">
       <div class="sec-header" style="margin-bottom:10px">
         <span class="sec-title">更新・期限アラート <span style="font-size:12px;font-weight:400;color:var(--text2)">（30日以内）</span></span>
         <span id="m-renew-badge"></span>
       </div>
       <div id="upcoming-list"></div>
     </div>
+
+    <!-- ゾーン4: サブスク内訳 -->
+    <div style="margin-top:18px" id="dash-zone-sub-breakdown"></div>
+
+    <!-- ゾーン5: 支出内訳 -->
+    <div style="margin-top:18px" id="dash-zone-exp-breakdown"></div>
 
   </div>
 
@@ -633,7 +672,16 @@ body {
       <button class="btn btn-ghost btn-sm" onclick="gotoSection('dashboard', document.querySelector('.nav-item'))">← ホームへ</button>
     </div>
 
-    <!-- Category manager -->
+    <!-- Dashboard customization -->
+    <div style="margin-bottom:24px">
+      <div class="sec-header" style="margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600;color:var(--text)">ダッシュボード表示設定</span>
+      </div>
+      <div class="section-note">「今月のサマリー」は固定表示です。それ以外のカードはON/OFFと順序を変更できます。</div>
+      <div id="dash-config-list"></div>
+    </div>
+
+    <div class="divider"></div>
     <div style="margin-bottom: 24px;">
       <div class="sec-header" style="margin-bottom:8px">
         <span style="font-size:14px;font-weight:600;color:var(--text)">カテゴリ管理</span>
@@ -1830,9 +1878,135 @@ function renderDashboard() {
       ${renewBadge(s.days, s)}
     </div>`;
   }).join('');
+
+  // ── ゾーンの表示・順序制御 ──
+  applyDashZones(subTotal, expTotalScaled);
 }
 
-/* --- SUBSCRIPTIONS --- */
+function applyDashZones(subTotal, expTotal) {
+  // 各ゾーンのIDとdash-zone-*の対応
+  const zoneMap = {
+    'chart':         'dash-zone-chart',
+    'alerts':        'dash-zone-alerts',
+    'sub-breakdown': 'dash-zone-sub-breakdown',
+    'exp-breakdown': 'dash-zone-exp-breakdown',
+  };
+
+  // ON/OFFと順序を反映
+  dashConfig.forEach((card, i) => {
+    const el = document.getElementById(zoneMap[card.id]);
+    if (!el) return;
+    el.style.display = card.on ? '' : 'none';
+    el.style.order = i + 1;
+  });
+
+  // サブスク内訳ゾーンを描画
+  if (isDashCardOn('sub-breakdown')) {
+    renderDashSubBreakdown(subTotal);
+  }
+
+  // 支出内訳ゾーンを描画
+  if (isDashCardOn('exp-breakdown')) {
+    renderDashExpBreakdown(expTotal);
+  }
+}
+
+function renderDashSubBreakdown(subTotal) {
+  const el = document.getElementById('dash-zone-sub-breakdown');
+  if (!el) return;
+  const subs = DB.subs;
+  if (!subs.length) { el.innerHTML = ''; return; }
+
+  const byCat = {};
+  subs.forEach(s => { byCat[s.cat||'other'] = (byCat[s.cat||'other']||0) + monthlyAmount(s); });
+  const cats = Object.entries(byCat).sort((a,b)=>b[1]-a[1])
+    .map(([id,amt]) => ({ cat: getCat(id), amt }));
+
+  const size = 100, cx = 50, cy = 50, r = 42, innerR = 26;
+  let angle = -Math.PI/2, paths = '';
+  cats.forEach(({cat, amt}) => {
+    const a = (amt/subTotal)*2*Math.PI;
+    if (a < 0.01) return;
+    const x1=cx+r*Math.cos(angle), y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(angle+a), y2=cy+r*Math.sin(angle+a);
+    const ix1=cx+innerR*Math.cos(angle), iy1=cy+innerR*Math.sin(angle);
+    const ix2=cx+innerR*Math.cos(angle+a), iy2=cy+innerR*Math.sin(angle+a);
+    paths += `<path d="M${ix1},${iy1} L${x1},${y1} A${r},${r} 0 ${a>Math.PI?1:0},1 ${x2},${y2} L${ix2},${iy2} A${innerR},${innerR} 0 ${a>Math.PI?1:0},0 ${ix1},${iy1}" fill="${cat.color}"/>`;
+    angle += a;
+  });
+
+  const hbars = cats.map(({cat,amt}) => {
+    const pct = Math.round(amt/subTotal*100);
+    return `<div class="hbar-row">
+      <div class="hbar-label">${cat.emoji} ${esc(cat.label)}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+      <div class="hbar-val">${fmt(amt).slice(1)} <span style="color:var(--text3)">${pct}%</span></div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="sec-header" style="margin-bottom:10px"><span class="sec-title">🔄 サブスク内訳</span></div>
+    <div class="card" style="padding:14px 16px">
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">${paths}
+          <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="8" fill="var(--text2)">合計/月</text>
+          <text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">${fmt(subTotal).slice(1)}</text>
+        </svg>
+        <div style="flex:1;min-width:140px">${hbars}</div>
+      </div>
+    </div>`;
+}
+
+function renderDashExpBreakdown(expTotal) {
+  const el = document.getElementById('dash-zone-exp-breakdown');
+  if (!el) return;
+  const thisMonth = expMonthStr(0);
+  const items = getExpensesForMonth(thisMonth);
+  if (!items.length) {
+    el.innerHTML = `<div class="sec-header" style="margin-bottom:10px"><span class="sec-title">💸 支出内訳</span></div>
+      <div class="card" style="padding:14px 16px;text-align:center;color:var(--text2);font-size:13px">今月の支出はありません</div>`;
+    return;
+  }
+
+  const byCat = {};
+  items.forEach(e => {
+    const key = (e.type||'fixed')+':'+(e.cat||'exp_other_f');
+    byCat[key] = { amt:(byCat[key]?.amt||0)+expAmountJPY(e), type:e.type||'fixed', catId:e.cat };
+  });
+  const cats = Object.entries(byCat).sort((a,b)=>b[1].amt-a[1].amt)
+    .map(([,{amt,type,catId}]) => ({ cat:getExpCat(type,catId), amt }));
+
+  const size=100, cx=50, cy=50, r=42, innerR=26;
+  let angle=-Math.PI/2, paths='';
+  cats.forEach(({cat,amt}) => {
+    const a=(amt/expTotal)*2*Math.PI;
+    if(a<0.01) return;
+    const x1=cx+r*Math.cos(angle), y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(angle+a), y2=cy+r*Math.sin(angle+a);
+    const ix1=cx+innerR*Math.cos(angle), iy1=cy+innerR*Math.sin(angle);
+    const ix2=cx+innerR*Math.cos(angle+a), iy2=cy+innerR*Math.sin(angle+a);
+    paths+=`<path d="M${ix1},${iy1} L${x1},${y1} A${r},${r} 0 ${a>Math.PI?1:0},1 ${x2},${y2} L${ix2},${iy2} A${innerR},${innerR} 0 ${a>Math.PI?1:0},0 ${ix1},${iy1}" fill="${cat.color}"/>`;
+    angle+=a;
+  });
+
+  const hbars = cats.map(({cat,amt}) => {
+    const pct=Math.round(amt/expTotal*100);
+    return `<div class="hbar-row">
+      <div class="hbar-label">${cat.emoji} ${esc(cat.label)}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+      <div class="hbar-val">${fmt(amt).slice(1)} <span style="color:var(--text3)">${pct}%</span></div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="sec-header" style="margin-bottom:10px"><span class="sec-title">💸 支出内訳</span></div>
+    <div class="card" style="padding:14px 16px">
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">${paths}
+          <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="8" fill="var(--text2)">今月</text>
+          <text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">${fmt(expTotal).slice(1)}</text>
+        </svg>
+        <div style="flex:1;min-width:140px">${hbars}</div>
+      </div>
+    </div>`;
 /* ============================================================
    SORT
    ============================================================ */
@@ -2120,7 +2294,81 @@ function renderPayments() {
 }
 
 /* --- SETTINGS --- */
+/* ============================================================
+   DASHBOARD CONFIG
+   ============================================================ */
+const DASH_CARDS_DEFAULT = [
+  { id: 'chart',         label: '月別推移グラフ',    icon: '📊', on: true  },
+  { id: 'alerts',        label: '更新・期限アラート', icon: '🔔', on: true  },
+  { id: 'sub-breakdown', label: 'サブスク内訳',       icon: '🔄', on: false },
+  { id: 'exp-breakdown', label: '支出内訳',           icon: '💸', on: false },
+];
+const DASH_CONFIG_KEY = 'substracker_dash_config';
+
+function loadDashConfig() {
+  try {
+    const raw = localStorage.getItem(DASH_CONFIG_KEY);
+    if (!raw) return JSON.parse(JSON.stringify(DASH_CARDS_DEFAULT));
+    const saved = JSON.parse(raw);
+    // 新しいカードがあれば末尾に追加
+    const ids = saved.map(c => c.id);
+    DASH_CARDS_DEFAULT.forEach(def => {
+      if (!ids.includes(def.id)) saved.push({ ...def });
+    });
+    return saved;
+  } catch { return JSON.parse(JSON.stringify(DASH_CARDS_DEFAULT)); }
+}
+
+function saveDashConfig() {
+  localStorage.setItem(DASH_CONFIG_KEY, JSON.stringify(dashConfig));
+}
+
+let dashConfig = loadDashConfig();
+
+function isDashCardOn(id) {
+  const c = dashConfig.find(x => x.id === id);
+  return c ? c.on : true;
+}
+
+function toggleDashCard(id) {
+  const c = dashConfig.find(x => x.id === id);
+  if (c) c.on = !c.on;
+  saveDashConfig();
+  renderDashboard();
+  renderDashConfigList();
+}
+
+function moveDashCard(id, dir) {
+  const idx = dashConfig.findIndex(x => x.id === id);
+  const target = idx + dir;
+  if (target < 0 || target >= dashConfig.length) return;
+  [dashConfig[idx], dashConfig[target]] = [dashConfig[target], dashConfig[idx]];
+  saveDashConfig();
+  renderDashboard();
+  renderDashConfigList();
+}
+
+function renderDashConfigList() {
+  const el = document.getElementById('dash-config-list');
+  if (!el) return;
+  el.innerHTML = dashConfig.map((card, i) => `
+    <div class="dash-cfg-row">
+      <span style="font-size:18px">${card.icon}</span>
+      <span class="dash-cfg-label">${card.label}</span>
+      <div class="dash-cfg-order">
+        <button class="dash-cfg-btn" onclick="moveDashCard('${card.id}',-1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+        <button class="dash-cfg-btn" onclick="moveDashCard('${card.id}', 1)" ${i === dashConfig.length-1 ? 'disabled' : ''}>▼</button>
+      </div>
+      <label class="toggle-wrap">
+        <input type="checkbox" ${card.on ? 'checked' : ''} onchange="toggleDashCard('${card.id}')">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  `).join('');
+}
+
 function renderSettings() {
+  renderDashConfigList();
   const list = document.getElementById('cat-pill-list');
   list.innerHTML = allCats().map(cat => {
     const delBtn = cat.preset
