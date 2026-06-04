@@ -71,18 +71,23 @@ body {
   background: var(--bg);
   border-top: 0.5px solid var(--border);
   display: flex; justify-content: space-around;
-  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  padding: 8px 4px max(8px, env(safe-area-inset-bottom));
   z-index: 100;
+  gap: 4px;
 }
 .nav-item {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 4px 16px; cursor: pointer; border: none; background: transparent;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 14px; cursor: pointer; border: none; background: transparent;
   color: var(--text3); font-size: 10px; font-family: inherit;
-  transition: color 0.15s; border-radius: var(--radius-sm);
+  transition: all 0.18s; border-radius: var(--radius-md);
   -webkit-tap-highlight-color: transparent;
+  flex: 1;
 }
-.nav-item.active { color: var(--accent); }
-.nav-icon { font-size: 20px; line-height: 1; }
+.nav-item.active {
+  background: var(--accent);
+  color: #fff;
+}
+.nav-icon { font-size: 19px; line-height: 1; }
 
 .section { display: none; }
 .section.active { display: block; }
@@ -194,7 +199,12 @@ body {
   border: none; background: transparent; color: var(--text2);
   border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
 }
-.seg-btn.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.seg-btn.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(42,106,255,0.3);
+}
 
 /* Upcoming */
 .upcoming-item {
@@ -288,7 +298,30 @@ body {
 .cat-bg-work    { background: #7F77DD22; }
 .cat-bg-utility { background: #BA751722; }
 .cat-bg-custom  { background: #88878022; }
-/* Autocomplete */
+/* Sort options */
+.sort-option {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 4px; border-bottom: 0.5px solid var(--border);
+  cursor: pointer; transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.sort-option:last-child { border-bottom: none; }
+.sort-option:hover { background: var(--bg2); border-radius: var(--radius-sm); }
+.sort-option-label { font-size: 15px; color: var(--text); }
+.sort-option-check { font-size: 18px; color: var(--accent); width: 24px; text-align: center; }
+
+/* PM grid */
+.pm-grid-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px; padding: 14px 8px;
+  border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  cursor: pointer; background: var(--bg);
+  font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text);
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.pm-grid-item:hover { border-color: var(--accent); background: var(--accent-soft); }
+.pm-grid-item .pm-gi-icon { font-size: 22px; line-height: 1; }
+.pm-grid-item.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 .autocomplete-wrap { position: relative; }
 .autocomplete-list {
   position: absolute; top: calc(100% + 4px); left: 0; right: 0;
@@ -365,7 +398,12 @@ body {
   <div class="section" id="sec-subs">
     <div class="sec-header">
       <span class="sec-title">サブスク一覧</span>
-      <span id="subs-count-label" style="font-size:12px;color:var(--text2)"></span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="subs-count-label" style="font-size:12px;color:var(--text2)"></span>
+        <button class="btn btn-ghost btn-sm" onclick="openSortSheet()" id="sort-btn">
+          ↕ <span id="sort-label">更新日順</span>
+        </button>
+      </div>
     </div>
     <div id="subs-list"></div>
   </div>
@@ -442,6 +480,18 @@ body {
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- ===== SORT SHEET ===== -->
+<div class="modal-overlay" id="modal-sort" onclick="closeModalOnBg(event,'modal-sort')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">並び替え</div>
+    <div id="sort-options"></div>
+    <div style="margin-top:8px">
+      <button class="btn btn-ghost" style="width:100%" onclick="closeModal('modal-sort')">閉じる</button>
+    </div>
+  </div>
+</div>
 
 
 <!-- ===== MODAL: サブスク追加/編集 ===== -->
@@ -578,29 +628,15 @@ body {
     <div class="modal-handle"></div>
     <div class="modal-title">支払い方法を追加</div>
 
-    <!-- よく使う: PayPay quick-add -->
+    <!-- 統合グリッド -->
     <div class="form-group">
-      <label class="form-label">よく使う</label>
-      <button class="btn btn-ghost btn-sm" onclick="addPayPay()" style="display:flex;align-items:center;gap:6px">
-        <span style="font-size:18px">📱</span> PayPayをワンタップで追加
-      </button>
+      <label class="form-label">種別を選択</label>
+      <div id="pm-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
     </div>
 
-    <div class="divider"></div>
-
-    <!-- 種別 4択 -->
-    <div class="form-group">
-      <label class="form-label">種別</label>
-      <div class="segment" id="pm-type-seg">
-        <button class="seg-btn active" onclick="setPmType('card',this)">💳 カード</button>
-        <button class="seg-btn" onclick="setPmType('cash',this)">💴 現金</button>
-        <button class="seg-btn" onclick="setPmType('bank',this)">🏦 口座振替</button>
-        <button class="seg-btn" onclick="setPmType('other',this)">📦 その他</button>
-      </div>
-    </div>
-
-    <!-- カード入力欄 -->
-    <div id="pm-card-fields">
+    <!-- カード入力欄（カード選択時のみ） -->
+    <div id="pm-card-fields" style="display:none">
+      <div class="divider" style="margin:4px 0 14px"></div>
       <div class="form-group">
         <label class="form-label">カード名称</label>
         <div class="autocomplete-wrap">
@@ -629,24 +665,28 @@ body {
           <input class="form-input" id="pm-last4" type="text" inputmode="numeric" placeholder="1234" maxlength="4">
         </div>
       </div>
-    </div>
-
-    <!-- 現金・口座振替：追加ボタンのみ（名称固定） -->
-    <div id="pm-fixed-fields" style="display:none">
-      <div class="section-note" id="pm-fixed-note"></div>
-    </div>
-
-    <!-- その他：自由記入 -->
-    <div id="pm-other-fields" style="display:none">
-      <div class="form-group">
-        <label class="form-label">名称</label>
-        <input class="form-input" id="pm-other-name" type="text" placeholder="例：Suica、nanaco、d払い">
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="backToPmGrid()">← 戻る</button>
+        <button class="btn btn-primary" onclick="savePmCard()">追加</button>
       </div>
     </div>
 
-    <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-pm')">キャンセル</button>
-      <button class="btn btn-primary" onclick="savePm()">追加</button>
+    <!-- その他入力欄（その他選択時のみ） -->
+    <div id="pm-other-fields" style="display:none">
+      <div class="divider" style="margin:4px 0 14px"></div>
+      <div class="form-group">
+        <label class="form-label">名称</label>
+        <input class="form-input" id="pm-other-name" type="text" placeholder="例：nanaco、WAON、電子マネー">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="backToPmGrid()">← 戻る</button>
+        <button class="btn btn-primary" onclick="savePmOther()">追加</button>
+      </div>
+    </div>
+
+    <!-- デフォルトのキャンセルボタン（グリッド表示時のみ） -->
+    <div id="pm-default-cancel" style="margin-top:14px">
+      <button class="btn btn-ghost" style="width:100%" onclick="closeModal('modal-pm')">キャンセル</button>
     </div>
   </div>
 </div>
@@ -697,9 +737,20 @@ async function fetchFxRates() {
 
 function toJPY(amount, currency, rateMode, fixedRate) {
   if (currency === 'JPY') return amount;
-  const rate = rateMode === 'fixed'
-    ? (fixedRate || 0)
-    : (fxRates[currency] || fixedRate || 0);
+  let rate;
+  if (rateMode === 'fixed') {
+    rate = fixedRate || 0;
+  } else {
+    // 変動レート：メモリ→localStorage保存値→fixedRateの順でフォールバック
+    rate = fxRates[currency];
+    if (!rate) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(FX_STORAGE_KEY) || '{}');
+        rate = saved[currency];
+      } catch(e) {}
+    }
+    if (!rate) rate = fixedRate || 0;
+  }
   return amount * rate;
 }
 
@@ -1013,15 +1064,17 @@ const PRESET_CATS = [
 
 // Payment method type config
 const PM_TYPE_COLORS = {
-  card:'#2A6AFF', cash:'#888780', bank:'#1D9E75', other:'#7F77DD'
+  card:'#2A6AFF', cash:'#888780', bank:'#1D9E75',
+  convenience:'#D85A30', other:'#7F77DD'
 };
 const PM_TYPE_ICONS = {
-  card:'💳', cash:'💴', bank:'🏦', other:'📦'
+  card:'💳', cash:'💴', bank:'🏦', convenience:'🏪', other:'📦'
 };
 const PM_TYPE_LABELS = {
   card:'クレジット / デビットカード',
   cash:'現金',
-  bank:'口座振替',
+  bank:'銀行振込',
+  convenience:'コンビニ決済',
   other:'その他'
 };
 
@@ -1247,6 +1300,72 @@ function renderDashboard() {
 }
 
 /* --- SUBSCRIPTIONS --- */
+/* ============================================================
+   SORT
+   ============================================================ */
+const SORT_OPTIONS = [
+  { id:'renew',       label:'更新日が近い順' },
+  { id:'amount_desc', label:'金額が高い順（月額換算）' },
+  { id:'amount_asc',  label:'金額が安い順（月額換算）' },
+  { id:'name_asc',    label:'名前順（あいうえお / A→Z）' },
+  { id:'name_desc',   label:'名前順（逆順）' },
+  { id:'cat',         label:'カテゴリ順' },
+];
+let currentSort = 'renew';
+
+function openSortSheet() {
+  document.getElementById('sort-options').innerHTML = SORT_OPTIONS.map(opt =>
+    `<div class="sort-option" onclick="applySort('${opt.id}')">
+      <span class="sort-option-label">${opt.label}</span>
+      <span class="sort-option-check">${currentSort === opt.id ? '✓' : ''}</span>
+    </div>`
+  ).join('');
+  document.getElementById('modal-sort').classList.add('open');
+}
+
+function applySort(id) {
+  currentSort = id;
+  const opt = SORT_OPTIONS.find(o => o.id === id);
+  document.getElementById('sort-label').textContent = opt ? opt.label.split('（')[0] : '並び替え';
+  // 金額順のとき、レートが未取得なら保存値を読み込む
+  if ((id === 'amount_desc' || id === 'amount_asc') && !fxRates.USD) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(FX_STORAGE_KEY) || '{}');
+      if (saved.USD) fxRates = saved;
+    } catch(e) {}
+  }
+  closeModal('modal-sort');
+  renderSubs();
+}
+
+function sortedSubs() {
+  const arr = [...DB.subs];
+  switch(currentSort) {
+    case 'renew':
+      return arr.sort((a, b) => {
+        const da = daysUntil(effectiveRenewDate(a)) ?? 9999;
+        const db = daysUntil(effectiveRenewDate(b)) ?? 9999;
+        return da - db;
+      });
+    case 'amount_desc':
+      return arr.sort((a, b) => monthlyAmountJPY(b) - monthlyAmountJPY(a));
+    case 'amount_asc':
+      return arr.sort((a, b) => monthlyAmountJPY(a) - monthlyAmountJPY(b));
+    case 'name_asc':
+      return arr.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+    case 'name_desc':
+      return arr.sort((a, b) => b.name.localeCompare(a.name, 'ja'));
+    case 'cat':
+      return arr.sort((a, b) => {
+        const ca = getCat(a.cat).label;
+        const cb = getCat(b.cat).label;
+        return ca.localeCompare(cb, 'ja');
+      });
+    default:
+      return arr;
+  }
+}
+
 function renderSubs() {
   const el  = document.getElementById('subs-list');
   const lbl = document.getElementById('subs-count-label');
@@ -1264,22 +1383,35 @@ function renderSubs() {
   const monthly = DB.subs.reduce((a, s) => a + monthlyAmount(s), 0);
   lbl.textContent = `計 ${fmt(monthly)}/月`;
 
-  const sorted = [...DB.subs].sort((a, b) => {
-    const da = daysUntil(effectiveRenewDate(a)) ?? 9999;
-    const db = daysUntil(effectiveRenewDate(b)) ?? 9999;
-    return da - db;
-  });
+  const sorted = sortedSubs();
 
   el.innerHTML = sorted.map(s => {
     const cat      = getCat(s.cat);
     const effDate  = effectiveRenewDate(s);
     const days     = daysUntil(effDate);
     const autoRenew = s.autoRenew !== false;
-    // 表示する更新日：自動更新なら次回日、手動なら登録日のまま
     const renewStr = effDate ? effDate.replaceAll('-', '/') : '';
     const autoTag  = autoRenew
       ? `<span style="font-size:10px;color:var(--text2)">🔁</span>`
       : `<span style="font-size:10px;color:var(--text2)">✋</span>`;
+
+    // 並び替えに応じて右カラムの表示を切り替え
+    let priceTop, priceBottom;
+    if (currentSort === 'amount_desc' || currentSort === 'amount_asc') {
+      // 金額順：月額円換算を大きく表示、元の金額を小さく下に
+      const jpy = monthlyAmountJPY(s);
+      const orig = fmtCurrency(s.amount, s.currency||'JPY', s.rateMode, s.fixedRate);
+      priceTop    = `<div class="sub-amount">${fmt(jpy)}<span style="font-size:10px;font-weight:400;color:var(--text2)">/月換算</span></div>`;
+      priceBottom = `<div style="font-size:10px;color:var(--text2)">${orig} / ${s.cycle==='monthly'?'月':'年'}</div>`;
+    } else {
+      // その他：元の表示
+      priceTop    = `<div class="sub-amount">${fmtCurrency(s.amount, s.currency||'JPY', s.rateMode, s.fixedRate)}</div>`;
+      priceBottom = `<div style="display:flex;align-items:center;gap:12px">
+        ${renewStr ? `<div style="font-size:10px;color:var(--text2)">${renewStr}</div>` : ''}
+        <div class="sub-cycle">${s.cycle==='monthly'?'/ 月':'/ 年'}</div>
+      </div>`;
+    }
+
     return `<div class="sub-row" onclick="openSubModal('${s.id}')">
       <div class="sub-emoji" style="background:${cat.color}22">${cat.emoji}</div>
       <div class="sub-info">
@@ -1293,11 +1425,8 @@ function renderSubs() {
         </div>
       </div>
       <div class="sub-price" style="display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:2px;align-self:stretch">
-        <div class="sub-amount">${fmtCurrency(s.amount, s.currency||'JPY', s.rateMode, s.fixedRate)}</div>
-        <div style="display:flex;align-items:center;gap:12px">
-          ${renewStr ? `<div style="font-size:10px;color:var(--text2)">${renewStr}</div>` : ''}
-          <div class="sub-cycle">${s.cycle==='monthly'?'/ 月':'/ 年'}</div>
-        </div>
+        ${priceTop}
+        ${priceBottom}
       </div>
     </div>`;
   }).join('');
@@ -1623,90 +1752,106 @@ function deleteSub() {
 let pmType = 'card';
 
 function openPmModal() {
-  pmType = 'card';
+  pmType = null;
   document.getElementById('pm-card-name').value  = '';
   document.getElementById('pm-last4').value      = '';
   document.getElementById('pm-other-name').value = '';
   document.getElementById('pm-brand').value      = 'Visa';
-  // Reset segment to first button
-  document.getElementById('pm-type-seg')
-    .querySelectorAll('.seg-btn')
-    .forEach((b, i) => b.classList.toggle('active', i === 0));
-  togglePmFields();
+  document.getElementById('pm-card-fields').style.display   = 'none';
+  document.getElementById('pm-other-fields').style.display  = 'none';
+  document.getElementById('pm-default-cancel').style.display = 'block';
+  buildPmGrid();
   document.getElementById('modal-pm').classList.add('open');
 }
 
-/* PayPay one-tap */
-function addPayPay() {
-  if (DB.paymentMethods.some(p => p.name === 'PayPay')) {
-    showToast('PayPayはすでに登録されています');
-    return;
-  }
-  DB.paymentMethods.push({
-    id: genId(), type: 'other', name: 'PayPay',
-    icon: '📱', color: '#E24B4A',
-  });
-  saveData();
-  closeModal('modal-pm');
-  render();
-  showToast('PayPayを追加しました ✓');
+const PM_GRID_ITEMS = [
+  { type:'card',         icon:'💳', label:'カード',      color:'#2A6AFF', form:true },
+  { type:'instant',      icon:'📱', label:'PayPay',      color:'#E24B4A', name:'PayPay' },
+  { type:'instant',      icon:'📱', label:'楽天ペイ',    color:'#BF0000', name:'楽天ペイ' },
+  { type:'instant',      icon:'📱', label:'d払い',       color:'#BF0000', name:'d払い' },
+  { type:'instant',      icon:'🚃', label:'Suica',       color:'#5BB8A0', name:'Suica' },
+  { type:'instant',      icon:'💙', label:'PayPal',      color:'#003087', name:'PayPal' },
+  { type:'cash',         icon:'💴', label:'現金',        color:'#888780' },
+  { type:'bank',         icon:'🏦', label:'銀行振込',    color:'#1D9E75' },
+  { type:'convenience',  icon:'🏪', label:'コンビニ',    color:'#D85A30' },
+  { type:'other',        icon:'📦', label:'その他',      color:'#7F77DD', form:true },
+];
+
+function buildPmGrid() {
+  const grid = document.getElementById('pm-grid');
+  grid.innerHTML = PM_GRID_ITEMS.map((item, i) =>
+    `<button class="pm-grid-item" onclick="onPmGridTap(${i})">
+      <span class="pm-gi-icon">${item.icon}</span>
+      <span>${item.label}</span>
+    </button>`
+  ).join('');
 }
 
-function setPmType(type, btn) {
-  pmType = type;
-  btn.closest('.segment').querySelectorAll('.seg-btn')
-    .forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  togglePmFields();
+function backToPmGrid() {
+  pmType = null;
+  document.getElementById('pm-card-fields').style.display   = 'none';
+  document.getElementById('pm-other-fields').style.display  = 'none';
+  document.getElementById('pm-default-cancel').style.display = 'block';
+  closeCardAcList();
+  // グリッドのハイライトをリセット
+  document.querySelectorAll('.pm-grid-item').forEach(el => el.classList.remove('selected'));
 }
 
-function togglePmFields() {
-  document.getElementById('pm-card-fields').style.display  = pmType === 'card'  ? 'block' : 'none';
-  document.getElementById('pm-fixed-fields').style.display = (pmType === 'cash' || pmType === 'bank') ? 'block' : 'none';
-  document.getElementById('pm-other-fields').style.display = pmType === 'other' ? 'block' : 'none';
+function onPmGridTap(idx) {
+  const item = PM_GRID_ITEMS[idx];
 
-  // Show note for fixed types
-  const noteEl = document.getElementById('pm-fixed-note');
-  if (pmType === 'cash')  noteEl.textContent = '「現金」として登録されます。';
-  if (pmType === 'bank')  noteEl.textContent = '「口座振替」として登録されます。';
-}
+  // グリッドのハイライト
+  document.querySelectorAll('.pm-grid-item').forEach((el, i) =>
+    el.classList.toggle('selected', i === idx)
+  );
 
-function savePm() {
-  // Duplicate check for fixed types
-  if (pmType === 'cash' || pmType === 'bank') {
-    const fixedName = pmType === 'cash' ? '現金' : '口座振替';
-    if (DB.paymentMethods.some(p => p.name === fixedName)) {
-      showToast(`「${fixedName}」はすでに登録されています`);
+  // 即追加（formフラグなし）
+  if (!item.form) {
+    const name = item.name || PM_TYPE_LABELS[item.type] || item.label;
+    const color = item.color;
+    const icon  = item.icon;
+    if (DB.paymentMethods.some(p => p.name === name)) {
+      showToast(`「${name}」はすでに登録されています`);
       return;
     }
-    DB.paymentMethods.push({
-      id: genId(), type: pmType, name: fixedName,
-      icon:  PM_TYPE_ICONS[pmType],
-      color: PM_TYPE_COLORS[pmType],
-    });
-  } else if (pmType === 'card') {
-    const name = document.getElementById('pm-card-name').value.trim();
-    if (!name) { showToast('カード名称を入力してください'); return; }
-    DB.paymentMethods.push({
-      id: genId(), type: 'card', name,
-      brand: document.getElementById('pm-brand').value,
-      last4: document.getElementById('pm-last4').value.trim() || null,
-      icon:  PM_TYPE_ICONS.card,
-      color: PM_TYPE_COLORS.card,
-    });
-  } else {
-    // other
-    const name = document.getElementById('pm-other-name').value.trim();
-    if (!name) { showToast('名称を入力してください'); return; }
-    DB.paymentMethods.push({
-      id: genId(), type: 'other', name,
-      icon:  PM_TYPE_ICONS.other,
-      color: PM_TYPE_COLORS.other,
-    });
+    DB.paymentMethods.push({ id: genId(), type: item.type, name, icon, color });
+    saveData();
+    closeModal('modal-pm');
+    render();
+    showToast(`${name}を追加しました ✓`);
+    return;
   }
-  saveData();
-  closeModal('modal-pm');
-  render();
+
+  // フォーム展開（カード・その他）
+  pmType = item.type;
+  document.getElementById('pm-card-fields').style.display  = item.type === 'card'  ? 'block' : 'none';
+  document.getElementById('pm-other-fields').style.display = item.type === 'other' ? 'block' : 'none';
+  document.getElementById('pm-default-cancel').style.display = 'none';
+
+  if (item.type === 'card') document.getElementById('pm-card-name').focus();
+  if (item.type === 'other') document.getElementById('pm-other-name').focus();
+}
+
+function savePmCard() {
+  const name = document.getElementById('pm-card-name').value.trim();
+  if (!name) { showToast('カード名称を入力してください'); return; }
+  DB.paymentMethods.push({
+    id: genId(), type: 'card', name,
+    brand: document.getElementById('pm-brand').value,
+    last4: document.getElementById('pm-last4').value.trim() || null,
+    icon: '💳', color: '#2A6AFF',
+  });
+  saveData(); closeModal('modal-pm'); render();
+  showToast('追加しました ✓');
+}
+
+function savePmOther() {
+  const name = document.getElementById('pm-other-name').value.trim();
+  if (!name) { showToast('名称を入力してください'); return; }
+  DB.paymentMethods.push({
+    id: genId(), type: 'other', name, icon: '📦', color: '#7F77DD',
+  });
+  saveData(); closeModal('modal-pm'); render();
   showToast('追加しました ✓');
 }
 
