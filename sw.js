@@ -1,4 +1,4 @@
-const CACHE_NAME = 'substracker-v2';
+const CACHE_NAME = 'substracker-v3';
 const ASSETS = [
   '/substracker/',
   '/substracker/index.html',
