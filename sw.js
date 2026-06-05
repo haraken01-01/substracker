@@ -1,4 +1,4 @@
-const CACHE_NAME = 'substracker-v4';
+const CACHE_NAME = 'substracker-v5';
 const ASSETS = [
   '/substracker/',
   '/substracker/index.html',
@@ -6,6 +6,9 @@ const ASSETS = [
   '/substracker/icon-192.png',
   '/substracker/icon-512.png',
 ];
+
+// これらは常にネットワーク優先で取得（更新が即反映されるように）
+const NETWORK_FIRST = /\/(index\.html|manifest\.json|icon-192\.png|icon-512\.png|apple-touch-icon\.png)(\?|$)/;
 
 // インストール：アセットをキャッシュ
 self.addEventListener('install', e => {
@@ -31,21 +34,22 @@ self.addEventListener('fetch', e => {
   // chrome-extension や POST は無視
   if (!e.request.url.startsWith('http') || e.request.method !== 'GET') return;
 
-  // HTML文書はネットワーク優先：常に最新を取得し、オフライン時のみキャッシュを返す
-  if (e.request.mode === 'navigate' || e.request.destination === 'document') {
+  // HTML・manifest・アイコンはネットワーク優先：常に最新を取得し、オフライン時のみキャッシュを返す
+  const isDoc = e.request.mode === 'navigate' || e.request.destination === 'document';
+  if (isDoc || e.request.destination === 'manifest' || NETWORK_FIRST.test(e.request.url)) {
     e.respondWith(
       fetch(e.request).then(res => {
         const clone = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
         return res;
       }).catch(() =>
-        caches.match(e.request).then(c => c || caches.match('/substracker/index.html'))
+        caches.match(e.request).then(c => c || (isDoc ? caches.match('/substracker/index.html') : undefined))
       )
     );
     return;
   }
 
-  // それ以外（アイコン・manifest等）はキャッシュ優先、失敗時はネットワーク
+  // それ以外はキャッシュ優先、失敗時はネットワーク
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
