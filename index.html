@@ -162,7 +162,7 @@ body {
   position: fixed; bottom: 72px; right: 20px;
   width: 52px; height: 52px; border-radius: 50%;
   background: var(--accent); color: #fff; font-size: 26px;
-  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; display: none; align-items: center; justify-content: center;
   box-shadow: 0 2px 12px rgba(42,106,255,0.35); z-index: 90;
   transition: transform 0.15s, opacity 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -1684,7 +1684,7 @@ function gotoSection(id, btn) {
   currentSection = id;
   // FAB: 支払いタブのみ非表示（設定はトップバーに移動済み）
   const fab = document.getElementById('fab-btn');
-  fab.style.display = id === 'payments' ? 'none' : 'flex';
+  fab.style.display = (id === 'payments' || id === 'dashboard') ? 'none' : 'flex';
   render();
 }
 
@@ -2862,7 +2862,11 @@ function importData(event) {
    MODAL HELPERS
    ============================================================ */
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  const overlay = document.getElementById(id);
+  overlay.classList.remove('open');
+  // シートのスクロール位置を初期化（次回は先頭から開く）
+  const sheet = overlay.querySelector('.modal-sheet');
+  if (sheet) sheet.scrollTop = 0;
   closeAcList();
   closeCardAcList();
 }
