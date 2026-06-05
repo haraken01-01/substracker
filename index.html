@@ -1594,7 +1594,31 @@ function getCat(id) {
    UTILITIES
    ============================================================ */
 function fmt(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
-function today() { return new Date().toISOString().split('T')[0]; }
+// ローカルタイム基準で YYYY-MM-DD を返す（toISOStringのUTCずれ防止）
+function ymd(d) {
+  return d.getFullYear() + '-' +
+         String(d.getMonth() + 1).padStart(2, '0') + '-' +
+         String(d.getDate()).padStart(2, '0');
+}
+function today() { return ymd(new Date()); }
+// 'YYYY-MM-DD' をローカル深夜のDateとして解釈（UTC解釈による前日ずれ防止）
+function parseLocalDate(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (!m) return new Date(NaN);
+  return new Date(+m[1], +m[2] - 1, +m[3]);
+}
+// 月/年を加算。月末は対象月の末日にクランプ（1/31 + 1ヶ月 = 2/28 等）
+function lastDayOfMonth(year, monthIdx) { return new Date(year, monthIdx + 1, 0).getDate(); }
+function addMonthsClamped(base, months) {
+  const t = new Date(base.getFullYear(), base.getMonth() + months, 1);
+  t.setDate(Math.min(base.getDate(), lastDayOfMonth(t.getFullYear(), t.getMonth())));
+  return t;
+}
+function addYearsClamped(base, years) {
+  const t = new Date(base.getFullYear() + years, base.getMonth(), 1);
+  t.setDate(Math.min(base.getDate(), lastDayOfMonth(t.getFullYear(), t.getMonth())));
+  return t;
+}
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
 function daysUntil(dateStr) {
@@ -1643,17 +1667,15 @@ function effectiveRenewDate(sub) {
   const autoRenew = sub.autoRenew !== false;
   if (!autoRenew) return sub.renew;
 
-  let d = new Date(sub.renew);
+  const base = parseLocalDate(sub.renew);
   const now = new Date(); now.setHours(0,0,0,0);
-  if (d >= now) return sub.renew;
+  if (isNaN(base.getTime()) || base >= now) return sub.renew;
 
-  // 更新日を繰り上げる
-  if (sub.cycle === 'monthly') {
-    while (d < now) d.setMonth(d.getMonth() + 1);
-  } else {
-    while (d < now) d.setFullYear(d.getFullYear() + 1);
-  }
-  return d.toISOString().split('T')[0];
+  // 更新日を今日以降まで繰り上げる（月末はクランプ）
+  const add = sub.cycle === 'monthly' ? addMonthsClamped : addYearsClamped;
+  let k = 1, d = add(base, k);
+  while (d < now && k < 100000) { k++; d = add(base, k); }
+  return ymd(d);
 }
 
 function dateCls(days, sub) {
@@ -2531,23 +2553,16 @@ function autoFillRenew() {
   if (!startVal) return;
 
   const cycle = document.getElementById('f-cycle').value;
-  const d = new Date(startVal);
-  if (isNaN(d.getTime())) return;
+  const base = parseLocalDate(startVal);
+  if (isNaN(base.getTime())) return;
 
-  // 加入日から1サイクル進めた日を起点に、
-  // 今日以降になるまでサイクルを繰り返して「今から見た次回更新日」を求める
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  let guard = 0;
-  do {
-    if (cycle === 'yearly') {
-      d.setFullYear(d.getFullYear() + 1);
-    } else {
-      d.setMonth(d.getMonth() + 1);
-    }
-  } while (d < today && ++guard < 1200);
+  // 加入日から、今日以降になる最初の更新日を求める（月末はクランプ）
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const add = cycle === 'yearly' ? addYearsClamped : addMonthsClamped;
+  let k = 1, d = add(base, k);
+  while (d < now && k < 100000) { k++; d = add(base, k); }
 
-  document.getElementById('f-renew').value = d.toISOString().split('T')[0];
+  document.getElementById('f-renew').value = ymd(d);
 }
 
 // iOS Safari用: dateピッカーの「完了」後に遅延して再チェック
