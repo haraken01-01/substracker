@@ -1214,9 +1214,9 @@ function monthlyAmountJPY(sub) {
    ============================================================ */
 const SERVICE_DB = [
   // 動画
-  { name:'Netflix',          emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画ストリーミング' },
-  { name:'Amazon Prime',     emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画・配送・音楽' },
-  { name:'Disney+',          emoji:'🎬', cat:'video',   currency:'JPY', hint:'ディズニー・Marvel・Star Wars' },
+  { name:'Netflix',          emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画ストリーミング', alias:['ネトフリ','ネットフリックス'] },
+  { name:'Amazon Prime',     emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画・配送・音楽', alias:['アマプラ','プライムビデオ','Prime Video','Amazon','アマゾン'] },
+  { name:'Disney+',          emoji:'🎬', cat:'video',   currency:'JPY', hint:'ディズニー・Marvel・Star Wars', alias:['ディズニープラス','ディズニー','Disney Plus'] },
   { name:'Hulu',             emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画ストリーミング' },
   { name:'U-NEXT',           emoji:'🎬', cat:'video',   currency:'JPY', hint:'動画・電子書籍' },
   { name:'Apple TV+',        emoji:'🎬', cat:'video',   currency:'JPY', hint:'Appleオリジナル動画' },
@@ -1227,7 +1227,7 @@ const SERVICE_DB = [
   { name:'Paramount+',       emoji:'🎬', cat:'video',   currency:'USD', hint:'動画ストリーミング' },
   { name:'Max',              emoji:'🎬', cat:'video',   currency:'USD', hint:'HBO・Warner Bros.' },
   // 音楽
-  { name:'Spotify',          emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
+  { name:'Spotify',          emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング', alias:['スポティファイ','スポチファイ'] },
   { name:'Apple Music',      emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
   { name:'Amazon Music',     emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
   { name:'YouTube Music',    emoji:'🎵', cat:'music',   currency:'JPY', hint:'音楽ストリーミング' },
@@ -1238,27 +1238,30 @@ const SERVICE_DB = [
   { name:'iCloud+',          emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'Apple クラウドストレージ' },
   { name:'Google One',       emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'Googleクラウドストレージ' },
   { name:'Dropbox',          emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'クラウドストレージ' },
-  { name:'Microsoft 365',    emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'Office + OneDrive' },
-  { name:'Adobe Creative Cloud', emoji:'☁️', cat:'work', currency:'JPY', hint:'Photoshop・Illustratorなど' },
+  { name:'Microsoft 365',    emoji:'☁️', cat:'cloud',   currency:'JPY', hint:'Office + OneDrive', alias:['Office','オフィス','Microsoft Office','Office365'] },
+  { name:'Adobe Creative Cloud', emoji:'☁️', cat:'work', currency:'JPY', hint:'Photoshop・Illustratorなど', alias:['Adobe','アドビ','Photoshop','フォトショップ','Illustrator','イラレ'] },
   // ゲーム
-  { name:'Nintendo Switch Online', emoji:'🎮', cat:'game', currency:'JPY', hint:'Nintendo オンラインプレイ' },
-  { name:'PlayStation Plus', emoji:'🎮', cat:'game',   currency:'JPY', hint:'PS オンライン・フリープレイ' },
-  { name:'Xbox Game Pass',   emoji:'🎮', cat:'game',   currency:'JPY', hint:'Microsoftゲームサブスク' },
-  { name:'Apple Arcade',     emoji:'🎮', cat:'game',   currency:'JPY', hint:'Apple ゲームサブスク' },
-  { name:'Steam',            emoji:'🎮', cat:'game',   currency:'USD', hint:'PCゲームプラットフォーム' },
+  { name:'Nintendo Switch Online', emoji:'🎮', cat:'game', currency:'JPY', hint:'Nintendo オンラインプレイ', alias:['NSO','ニンテンドー','スイッチオンライン','ニンテンドースイッチオンライン'] },
+  { name:'PlayStation Plus', emoji:'🎮', cat:'game',   currency:'JPY', hint:'PS オンライン・フリープレイ', alias:['PS+','PSプラス','PS Plus','PSN','プレステ','プレイステーション'] },
+  { name:'Xbox Game Pass',   emoji:'🎮', cat:'game',   currency:'JPY', hint:'Microsoftゲームサブスク', alias:['ゲームパス','Game Pass','Xbox'] },
+  { name:'Apple Arcade',     emoji:'🎮', cat:'game',   currency:'JPY', hint:'Apple ゲームサブスク', alias:['Apple','アップルアーケード'] },
+  { name:'Steam',            emoji:'🎮', cat:'game',   currency:'USD', hint:'PCゲームプラットフォーム', alias:['スチーム','スティーム'] },
   // AI
-  { name:'ChatGPT Plus',     emoji:'🤖', cat:'ai',     currency:'USD', hint:'OpenAI / GPT-4o' },
-  { name:'Claude Pro',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'Anthropic' },
-  { name:'Claude Max',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'Anthropic / 最上位プラン' },
-  { name:'Gemini Advanced',  emoji:'🤖', cat:'ai',     currency:'USD', hint:'Google AI' },
-  { name:'GitHub Copilot',   emoji:'🤖', cat:'ai',     currency:'USD', hint:'AIコーディングアシスタント' },
-  { name:'Perplexity Pro',   emoji:'🤖', cat:'ai',     currency:'USD', hint:'AI検索エンジン' },
-  { name:'Midjourney',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'AI画像生成' },
-  { name:'Cursor',           emoji:'🤖', cat:'ai',     currency:'USD', hint:'AIコードエディタ' },
-  { name:'Copilot Pro',      emoji:'🤖', cat:'ai',     currency:'USD', hint:'Microsoft AI' },
-  { name:'Grok',             emoji:'🤖', cat:'ai',     currency:'USD', hint:'xAI' },
+  { name:'ChatGPT Plus',     emoji:'🤖', cat:'ai',     currency:'USD', hint:'OpenAI / GPT-4o', alias:['OpenAI','GPT','チャットGPT','チャットジーピーティー'] },
+  { name:'Claude Pro',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'Anthropic', alias:['Anthropic','クロード','アンソロピック'] },
+  { name:'Claude Max',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'Anthropic / 最上位プラン', alias:['Anthropic','クロード'] },
+  { name:'Google AI Pro',    emoji:'🤖', cat:'ai',     currency:'USD', hint:'Google / 旧 Gemini Advanced', alias:['Gemini','Gemini Advanced','Google AI Premium','Google One AI','ジェミニ','Google'] },
+  { name:'Google AI Ultra',  emoji:'🤖', cat:'ai',     currency:'USD', hint:'Google / 最上位AIプラン', alias:['Gemini Ultra','Gemini','Google'] },
+  { name:'Genspark',         emoji:'🤖', cat:'ai',     currency:'USD', hint:'AIエージェント／検索', alias:['ジェンスパーク'] },
+  { name:'GitHub Copilot',   emoji:'🤖', cat:'ai',     currency:'USD', hint:'AIコーディングアシスタント', alias:['Copilot','コパイロット','ギットハブ'] },
+  { name:'Perplexity Pro',   emoji:'🤖', cat:'ai',     currency:'USD', hint:'AI検索エンジン', alias:['パープレキシティ'] },
+  { name:'Midjourney',       emoji:'🤖', cat:'ai',     currency:'USD', hint:'AI画像生成', alias:['ミッドジャーニー'] },
+  { name:'Cursor',           emoji:'🤖', cat:'ai',     currency:'USD', hint:'AIコードエディタ', alias:['カーソル'] },
+  { name:'Copilot Pro',      emoji:'🤖', cat:'ai',     currency:'USD', hint:'Microsoft AI', alias:['Microsoft Copilot','コパイロット'] },
+  { name:'Grok',             emoji:'🤖', cat:'ai',     currency:'USD', hint:'xAI', alias:['グロック','xAI'] },
   // SaaS・仕事・学習
-  { name:'Notion',           emoji:'💼', cat:'work',   currency:'USD', hint:'メモ・プロジェクト管理' },
+  { name:'Notion',           emoji:'💼', cat:'work',   currency:'USD', hint:'メモ・プロジェクト管理', alias:['ノーション'] },
+  { name:'Google Workspace', emoji:'💼', cat:'work',   currency:'JPY', hint:'Gmail・ドライブ・Meet（法人向け）', alias:['Workspace','GWS','Gmail','Googleワークスペース','G Suite','Google'] },
   { name:'Slack',            emoji:'💼', cat:'work',   currency:'JPY', hint:'ビジネスチャット' },
   { name:'Zoom',             emoji:'💼', cat:'work',   currency:'JPY', hint:'ビデオ会議' },
   { name:'Figma',            emoji:'💼', cat:'work',   currency:'USD', hint:'UIデザインツール' },
@@ -1291,7 +1294,8 @@ function onServiceInput() {
   if (!val) { list.classList.remove('open'); return; }
 
   const matches = SERVICE_DB.filter(s =>
-    s.name.toLowerCase().includes(val)
+    s.name.toLowerCase().includes(val) ||
+    (s.alias && s.alias.some(a => a.toLowerCase().includes(val)))
   ).slice(0, 7);
 
   if (!matches.length) { list.classList.remove('open'); return; }
