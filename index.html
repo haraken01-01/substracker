@@ -609,9 +609,6 @@ body {
       <span class="sec-title">支払い方法</span>
     </div>
     <div id="pm-list"></div>
-    <div style="margin-top:12px">
-      <button class="btn btn-ghost" style="width:100%" onclick="openPmModal()">＋ 支払い方法を追加</button>
-    </div>
   </div>
 
   <!-- ===== EXPENSE ===== -->
@@ -1684,7 +1681,7 @@ function gotoSection(id, btn) {
   currentSection = id;
   // FAB: 支払いタブのみ非表示（設定はトップバーに移動済み）
   const fab = document.getElementById('fab-btn');
-  fab.style.display = (id === 'payments' || id === 'dashboard') ? 'none' : 'flex';
+  fab.style.display = id === 'dashboard' ? 'none' : 'flex';
   render();
 }
 
@@ -1703,6 +1700,8 @@ function onFabClick() {
     openExpModal();
   } else if (currentSection === 'license') {
     openLicModal();
+  } else if (currentSection === 'payments') {
+    openPmModal();
   } else {
     openSubModal();
   }
@@ -2262,7 +2261,7 @@ function renderPayments() {
     el.innerHTML = `<div class="empty-state">
       <div class="empty-icon">💳</div>
       <div class="empty-title">支払い方法を登録してください</div>
-      <div class="empty-desc">下のボタンから追加できます</div>
+      <div class="empty-desc">右下の＋ボタンから追加できます</div>
     </div>`;
     return;
   }
@@ -2592,7 +2591,6 @@ function openSubModal(subId) {
 
   document.getElementById('sub-delete-zone').style.display = sub ? 'block' : 'none';
   document.getElementById('modal-sub').classList.add('open');
-  document.getElementById('f-name').focus();
 }
 
 function saveSub() {
