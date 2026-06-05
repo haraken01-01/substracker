@@ -2529,11 +2529,20 @@ function autoFillRenew() {
   const cycle = document.getElementById('f-cycle').value;
   const d = new Date(startVal);
   if (isNaN(d.getTime())) return;
-  if (cycle === 'yearly') {
-    d.setFullYear(d.getFullYear() + 1);
-  } else {
-    d.setMonth(d.getMonth() + 1);
-  }
+
+  // 加入日から1サイクル進めた日を起点に、
+  // 今日以降になるまでサイクルを繰り返して「今から見た次回更新日」を求める
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let guard = 0;
+  do {
+    if (cycle === 'yearly') {
+      d.setFullYear(d.getFullYear() + 1);
+    } else {
+      d.setMonth(d.getMonth() + 1);
+    }
+  } while (d < today && ++guard < 1200);
+
   document.getElementById('f-renew').value = d.toISOString().split('T')[0];
 }
 
