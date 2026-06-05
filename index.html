@@ -1841,10 +1841,8 @@ function renderDashboard() {
       <div class="empty-title">${hasAny ? '30日以内のアラートはありません' : 'サブスクを登録しましょう'}</div>
       <div class="empty-desc">${hasAny ? '更新や期限が近づいたらここに表示されます' : '右下の＋ボタンから追加できます'}</div>
     </div>`;
-    return;
-  }
-
-  upEl.innerHTML = allUpcoming.map(item => {
+  } else {
+    upEl.innerHTML = allUpcoming.map(item => {
     if (item._kind === 'license') {
       const d = new Date(item.expiry);
       const isExpired = item.days < 0;
@@ -1879,6 +1877,7 @@ function renderDashboard() {
       ${renewBadge(s.days, s)}
     </div>`;
   }).join('');
+  }
 
   // ── ゾーンの表示・順序制御 ──
   applyDashZones(subTotal, expTotalScaled);
