@@ -100,6 +100,7 @@ body {
 
 .section { display: none; }
 .section.active { display: block; }
+#sec-dashboard.active { display: flex; flex-direction: column; }
 
 /* Cards */
 .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 10px; }
@@ -504,7 +505,7 @@ body {
   </div>
 
   <!-- ===== DASHBOARD ===== -->
-  <div class="section active" id="sec-dashboard" style="display:flex;flex-direction:column">
+  <div class="section active" id="sec-dashboard">
 
     <!-- ゾーン1: 今月のサマリー（固定・必須） -->
     <div style="margin-bottom:18px" id="dash-zone-summary">
