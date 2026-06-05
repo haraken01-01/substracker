@@ -1,10 +1,11 @@
-const CACHE_NAME = 'substracker-v6';
+const CACHE_NAME = 'substracker-v7';
 const ASSETS = [
   '/substracker/',
   '/substracker/index.html',
   '/substracker/manifest.json',
   '/substracker/icon-192.png',
   '/substracker/icon-512.png',
+  '/substracker/apple-touch-icon.png',
 ];
 
 // これらは常にネットワーク優先で取得（更新が即反映されるように）

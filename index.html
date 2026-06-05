@@ -126,6 +126,11 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 .sub-row:hover { border-color: var(--border2); }
+.sub-row:focus-visible, .exp-row:focus-visible, .lic-row:focus-visible,
+.upcoming-item:focus-visible, .sort-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .sub-emoji { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
 .sub-info { flex: 1; min-width: 0; }
 .sub-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -702,6 +707,10 @@ body {
         <span style="font-size:14px;font-weight:600;color:var(--text)">データ管理</span>
       </div>
       <div class="section-note">データはこのブラウザにのみ保存されています。別のブラウザやデバイスには同期されません。</div>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;color:var(--text2)">
+        <input type="checkbox" id="export-license-keys">
+        JSONバックアップにライセンスキーを含める
+      </label>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-ghost btn-sm" onclick="exportCsv()">📊 CSVエクスポート</button>
         <button class="btn btn-ghost btn-sm" onclick="exportData()">📤 JSONエクスポート</button>
@@ -739,10 +748,10 @@ body {
 <div class="toast" id="toast"></div>
 
 <!-- ===== SORT SHEET ===== -->
-<div class="modal-overlay" id="modal-sort" onclick="closeModalOnBg(event,'modal-sort')">
+<div class="modal-overlay" id="modal-sort" role="dialog" aria-modal="true" aria-labelledby="sort-modal-title" aria-hidden="true" onclick="closeModalOnBg(event,'modal-sort')">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <div class="modal-title">並び替え</div>
+    <div class="modal-title" id="sort-modal-title">並び替え</div>
     <div id="sort-options"></div>
     <div style="margin-top:8px">
       <button class="btn btn-ghost" style="width:100%" onclick="closeModal('modal-sort')">閉じる</button>
@@ -752,7 +761,7 @@ body {
 
 
 <!-- ===== MODAL: 支出追加/編集 ===== -->
-<div class="modal-overlay" id="modal-exp" onclick="closeModalOnBg(event,'modal-exp')">
+<div class="modal-overlay" id="modal-exp" role="dialog" aria-modal="true" aria-labelledby="exp-modal-title" aria-hidden="true" onclick="closeModalOnBg(event,'modal-exp')">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title" id="exp-modal-title">支出を追加</div>
@@ -841,7 +850,7 @@ body {
 
 
 <!-- ===== MODAL: サブスク追加/編集 ===== -->
-<div class="modal-overlay" id="modal-sub" onclick="closeModalOnBg(event,'modal-sub')">
+<div class="modal-overlay" id="modal-sub" role="dialog" aria-modal="true" aria-labelledby="sub-modal-title" aria-hidden="true" onclick="closeModalOnBg(event,'modal-sub')">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title" id="sub-modal-title">サブスクを追加</div>
@@ -969,7 +978,7 @@ body {
 
 
 <!-- ===== MODAL: ライセンス追加/編集 ===== -->
-<div class="modal-overlay" id="modal-lic" onclick="closeModalOnBg(event,'modal-lic')">
+<div class="modal-overlay" id="modal-lic" role="dialog" aria-modal="true" aria-labelledby="lic-modal-title" aria-hidden="true" onclick="closeModalOnBg(event,'modal-lic')">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title" id="lic-modal-title">ライセンスを追加</div>
@@ -996,6 +1005,7 @@ body {
           style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:0;color:var(--text2)"
           id="lf-key-eye">👁</button>
       </div>
+      <div style="margin-top:5px;font-size:11px;color:var(--text2)">この端末のブラウザ内に保存されます。共有端末では登録しないでください。</div>
     </div>
 
     <div class="form-row">
@@ -1064,10 +1074,10 @@ body {
 </div>
 
 <!-- ===== MODAL: 支払い方法追加 ===== -->
-<div class="modal-overlay" id="modal-pm" onclick="closeModalOnBg(event,'modal-pm')">
+<div class="modal-overlay" id="modal-pm" role="dialog" aria-modal="true" aria-labelledby="pm-modal-title" aria-hidden="true" onclick="closeModalOnBg(event,'modal-pm')">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <div class="modal-title">支払い方法を追加</div>
+    <div class="modal-title" id="pm-modal-title">支払い方法を追加</div>
 
     <!-- 統合グリッド -->
     <div class="form-group">
@@ -1530,21 +1540,12 @@ function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultData();
-    const d = JSON.parse(raw);
-    if (!d.customCategories) d.customCategories = [];
-    if (!d.expenses) d.expenses = [];
-    if (!d.licenses) d.licenses = [];
-    // マイグレーション: デフォルト支払い方法がなければ末尾に追加
-    PM_DEFAULTS.forEach(def => {
-      if (!d.paymentMethods.some(p => p.id === def.id)) {
-        d.paymentMethods.push(def);
-      }
-    });
-    return d;
+    return normalizeData(JSON.parse(raw));
   } catch(e) { return defaultData(); }
 }
 
 function saveData() {
+  DB = normalizeData(DB);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
 }
 
@@ -1577,6 +1578,162 @@ function buildPmOptions(selectedId) {
 
 function defaultData() {
   return { subs: [], paymentMethods: [...PM_DEFAULTS], customCategories: [], expenses: [], licenses: [], version: 1 };
+}
+
+const SAFE_ID_RE = /^[A-Za-z0-9_-]{1,80}$/;
+const SAFE_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
+const ALLOWED_OS = new Set(['Windows', 'macOS', 'Linux', 'iOS', 'Android', 'ChromeOS']);
+
+function cleanText(value, maxLength = 500) {
+  return (typeof value === 'string' ? value : '')
+    .replace(/[\u0000-\u001F\u007F]/g, '')
+    .slice(0, maxLength);
+}
+
+function cleanEmoji(value, fallback = '📦') {
+  const cleaned = cleanText(value, 16).replace(/[<>&"'`]/g, '');
+  return cleaned || fallback;
+}
+
+function cleanColor(value, fallback = '#888780') {
+  return SAFE_COLOR_RE.test(value || '') ? value : fallback;
+}
+
+function cleanNumber(value, { min = 0, max = 1e12, nullable = false } = {}) {
+  if (value === null || value === '' || typeof value === 'boolean') return nullable ? null : min;
+  const number = Number(value);
+  if (!Number.isFinite(number)) return nullable ? null : min;
+  return Math.min(max, Math.max(min, number));
+}
+
+function cleanDate(value, nullable = true) {
+  const text = cleanText(value, 10);
+  if (!text) return nullable ? null : '';
+  const date = parseLocalDate(text);
+  return !isNaN(date.getTime()) && ymd(date) === text ? text : (nullable ? null : '');
+}
+
+function normalizeData(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return defaultData();
+
+  const usedIds = new Set();
+  const makeId = (value, prefix) => {
+    let id = cleanText(value, 80);
+    if (!SAFE_ID_RE.test(id) || usedIds.has(id)) id = `${prefix}_${genId()}`;
+    usedIds.add(id);
+    return id;
+  };
+  const categoryMap = new Map(PRESET_CATS.map(cat => [cat.id, cat.id]));
+  const paymentMap = new Map(PM_DEFAULTS.map(pm => [pm.id, pm.id]));
+  PRESET_CATS.forEach(cat => usedIds.add(cat.id));
+
+  const customCategories = (Array.isArray(input.customCategories) ? input.customCategories : [])
+    .slice(0, 100)
+    .filter(cat => cat && typeof cat === 'object')
+    .map(cat => {
+      const originalId = cleanText(cat.id, 80);
+      const id = makeId(originalId, 'custom');
+      if (!categoryMap.has(originalId)) categoryMap.set(originalId, id);
+      return {
+        id,
+        emoji: cleanEmoji(cat.emoji, '🏷️'),
+        label: cleanText(cat.label, 80) || '名称未設定',
+        color: cleanColor(cat.color),
+        preset: false,
+      };
+    });
+
+  const defaultIds = new Set(PM_DEFAULTS.map(pm => pm.id));
+  PM_DEFAULTS.forEach(pm => usedIds.add(pm.id));
+  const userPaymentMethods = (Array.isArray(input.paymentMethods) ? input.paymentMethods : [])
+    .slice(0, 200)
+    .filter(pm => pm && typeof pm === 'object' && !defaultIds.has(pm.id) && !pm.isDefault)
+    .map(pm => {
+      const originalId = cleanText(pm.id, 80);
+      const id = makeId(originalId, 'pm');
+      if (!paymentMap.has(originalId)) paymentMap.set(originalId, id);
+      const type = ['card', 'cash', 'bank', 'convenience', 'instant', 'other'].includes(pm.type)
+        ? pm.type : 'other';
+      return {
+        id,
+        type,
+        name: cleanText(pm.name, 120) || '名称未設定',
+        icon: cleanEmoji(pm.icon),
+        color: cleanColor(pm.color, PM_TYPE_COLORS[type] || '#888780'),
+        brand: cleanText(pm.brand, 40),
+        last4: /^\d{4}$/.test(pm.last4 || '') ? pm.last4 : '',
+        isDefault: false,
+      };
+    });
+  const paymentMethods = [...userPaymentMethods, ...PM_DEFAULTS.map(pm => ({ ...pm }))];
+
+  const resolveCategory = value => {
+    const id = cleanText(value, 80);
+    return categoryMap.get(id) || (PRESET_CATS.some(cat => cat.id === id) ? id : 'other');
+  };
+  const resolvePayment = value => {
+    const id = cleanText(value, 80);
+    return paymentMap.get(id) || null;
+  };
+
+  const subs = (Array.isArray(input.subs) ? input.subs : [])
+    .slice(0, 5000)
+    .filter(item => item && typeof item === 'object')
+    .map(item => ({
+      id: makeId(item.id, 'sub'),
+      createdAt: cleanText(item.createdAt, 40),
+      name: cleanText(item.name, 160) || '名称未設定',
+      amount: cleanNumber(item.amount),
+      currency: ['JPY', 'USD', 'EUR'].includes(item.currency) ? item.currency : 'JPY',
+      rateMode: item.rateMode === 'variable' ? 'variable' : 'fixed',
+      fixedRate: cleanNumber(item.fixedRate, { nullable: true }),
+      cycle: item.cycle === 'yearly' ? 'yearly' : 'monthly',
+      cat: resolveCategory(item.cat),
+      start: cleanDate(item.start),
+      renew: cleanDate(item.renew),
+      pmId: resolvePayment(item.pmId),
+      note: cleanText(item.note, 2000) || null,
+      autoRenew: item.autoRenew !== false,
+    }));
+
+  const expenses = (Array.isArray(input.expenses) ? input.expenses : [])
+    .slice(0, 10000)
+    .filter(item => item && typeof item === 'object')
+    .map(item => ({
+      id: makeId(item.id, 'exp'),
+      createdAt: cleanText(item.createdAt, 40),
+      title: cleanText(item.title, 160) || '名称未設定',
+      type: item.type === 'variable' ? 'variable' : 'fixed',
+      amount: cleanNumber(item.amount),
+      currency: ['JPY', 'USD', 'EUR'].includes(item.currency) ? item.currency : 'JPY',
+      date: cleanDate(item.date, false) || today(),
+      cat: cleanText(item.cat, 80),
+      pmId: resolvePayment(item.pmId),
+      note: cleanText(item.note, 2000),
+      monthly: item.monthly === true,
+      monthlyActive: item.monthly === true && item.monthlyActive !== false,
+    }));
+
+  const licenses = (Array.isArray(input.licenses) ? input.licenses : [])
+    .slice(0, 5000)
+    .filter(item => item && typeof item === 'object')
+    .map(item => ({
+      id: makeId(item.id, 'lic'),
+      createdAt: cleanText(item.createdAt, 40),
+      name: cleanText(item.name, 160) || '名称未設定',
+      category: item.category === 'os_device' ? 'os_device' : 'software',
+      licenseKey: cleanText(item.licenseKey, 2000),
+      purchaseDate: cleanDate(item.purchaseDate, false),
+      expiry: cleanDate(item.expiry, false),
+      purchasePrice: cleanNumber(item.purchasePrice, { nullable: true }),
+      currency: ['JPY', 'USD', 'EUR'].includes(item.currency) ? item.currency : 'JPY',
+      os: (Array.isArray(item.os) ? item.os : []).filter(os => ALLOWED_OS.has(os)).slice(0, 6),
+      version: cleanText(item.version, 80),
+      seats: cleanNumber(item.seats, { min: 1, max: 100000, nullable: true }),
+      note: cleanText(item.note, 2000),
+    }));
+
+  return { subs, paymentMethods, customCategories, expenses, licenses, version: 1 };
 }
 
 let DB = loadData();
@@ -1624,7 +1781,8 @@ function genId() { return Date.now().toString(36) + Math.random().toString(36).s
 function daysUntil(dateStr) {
   if (!dateStr) return null;
   const now = new Date(); now.setHours(0,0,0,0);
-  const d = new Date(dateStr); d.setHours(0,0,0,0);
+  const d = parseLocalDate(dateStr);
+  if (isNaN(d.getTime())) return null;
   return Math.round((d - now) / 86400000);
 }
 
@@ -1691,6 +1849,13 @@ function esc(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function activateOnKey(event, callback) {
+  if (event.target !== event.currentTarget) return;
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  callback();
 }
 
 /* ============================================================
@@ -1872,7 +2037,7 @@ function renderDashboard() {
       const d = new Date(item.expiry);
       const isExpired = item.days < 0;
       const dayCls = item.days <= 7 ? 'urgent' : item.days <= 30 ? 'warn' : '';
-      return `<div class="upcoming-item" style="${isExpired ? 'border-color:#e03534;background:var(--danger-soft)' : ''}" onclick="openLicModal('${item.id}')">
+      return `<div class="upcoming-item" role="button" tabindex="0" style="${isExpired ? 'border-color:#e03534;background:var(--danger-soft)' : ''}" onclick="openLicModal('${item.id}')" onkeydown="activateOnKey(event,()=>openLicModal('${item.id}'))">
         <div class="upcoming-date ${dayCls}">
           <div class="upcoming-date-day">${d.getDate()}</div>
           <div class="upcoming-date-mon">${d.getMonth()+1}月</div>
@@ -1889,7 +2054,7 @@ function renderDashboard() {
     const cat = getCat(s.cat);
     const d = new Date(s.effDate);
     const isExpired = s.days < 0 && s.autoRenew === false;
-    return `<div class="upcoming-item" style="${isExpired ? 'border-color:#e03534;background:var(--danger-soft)' : ''}" onclick="openSubModal('${s.id}')">
+    return `<div class="upcoming-item" role="button" tabindex="0" style="${isExpired ? 'border-color:#e03534;background:var(--danger-soft)' : ''}" onclick="openSubModal('${s.id}')" onkeydown="activateOnKey(event,()=>openSubModal('${s.id}'))">
       <div class="upcoming-date ${dateCls(s.days, s)}">
         <div class="upcoming-date-day">${d.getDate()}</div>
         <div class="upcoming-date-mon">${d.getMonth()+1}月</div>
@@ -2049,12 +2214,12 @@ let currentSort = 'renew';
 
 function openSortSheet() {
   document.getElementById('sort-options').innerHTML = SORT_OPTIONS.map(opt =>
-    `<div class="sort-option" onclick="applySort('${opt.id}')">
+    `<div class="sort-option" role="button" tabindex="0" onclick="applySort('${opt.id}')" onkeydown="activateOnKey(event,()=>applySort('${opt.id}'))">
       <span class="sort-option-label">${opt.label}</span>
       <span class="sort-option-check">${currentSort === opt.id ? '✓' : ''}</span>
     </div>`
   ).join('');
-  document.getElementById('modal-sort').classList.add('open');
+  openModal('modal-sort');
 }
 
 function applySort(id) {
@@ -2256,7 +2421,7 @@ function renderSubs() {
       </div>`;
     }
 
-    return `<div class="sub-row" onclick="openSubModal('${s.id}')">
+    return `<div class="sub-row" role="button" tabindex="0" onclick="openSubModal('${s.id}')" onkeydown="activateOnKey(event,()=>openSubModal('${s.id}'))">
       <div class="sub-emoji" style="background:${cat.color}22">${cat.emoji}</div>
       <div class="sub-info">
         <div class="sub-name">${esc(s.name)}</div>
@@ -2618,7 +2783,7 @@ function openSubModal(subId) {
   pmSel.onchange = () => onPmSelectChange('f-pm', 'modal-sub');
 
   document.getElementById('sub-delete-zone').style.display = sub ? 'block' : 'none';
-  document.getElementById('modal-sub').classList.add('open');
+  openModal('modal-sub');
 }
 
 function saveSub() {
@@ -2686,7 +2851,7 @@ function openPmModal() {
   document.getElementById('pm-other-fields').style.display  = 'none';
   document.getElementById('pm-default-cancel').style.display = 'block';
   buildPmGrid();
-  document.getElementById('modal-pm').classList.add('open');
+  openModal('modal-pm');
 }
 
 const PM_GRID_ITEMS = [
@@ -2835,7 +3000,7 @@ function exportCsv() {
       s.renew  || '',
       pm,
       s.note   || '',
-    ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+    ].map(csvCell).join(',');
   });
 
   // BOM付きUTF-8でExcelが文字化けしないようにする
@@ -2851,28 +3016,46 @@ function exportCsv() {
   showToast('CSVをエクスポートしました');
 }
 
+function csvCell(value) {
+  let text = String(value ?? '');
+  if (/^\s*[=+\-@]/.test(text)) text = "'" + text;
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
 function exportData() {
-  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json' });
+  const includeLicenseKeys = document.getElementById('export-license-keys')?.checked === true;
+  const backup = JSON.parse(JSON.stringify(DB));
+  if (!includeLicenseKeys) {
+    backup.licenses = (backup.licenses || []).map(({ licenseKey, ...license }) => license);
+  }
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
   a.download = 'substracker_backup_' + today() + '.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('エクスポートしました');
+  showToast(includeLicenseKeys ? 'キーを含めてエクスポートしました' : 'キーを除外してエクスポートしました');
 }
 
 function importData(event) {
   const file = event.target.files[0];
   if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('2MB以下のJSONファイルを選択してください');
+    event.target.value = '';
+    return;
+  }
   const reader = new FileReader();
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (!data.subs || !data.paymentMethods) throw new Error('invalid');
+      if (!data || typeof data !== 'object' || !Array.isArray(data.subs) || !Array.isArray(data.paymentMethods)) {
+        throw new Error('invalid');
+      }
+      const normalized = normalizeData(data);
       if (!confirm('現在のデータを上書きしてインポートしますか？')) return;
-      DB = data;
-      if (!DB.customCategories) DB.customCategories = [];
+      DB = normalized;
       saveData();
       render();
       showToast('インポートしました ✓');
@@ -2887,18 +3070,62 @@ function importData(event) {
 /* ============================================================
    MODAL HELPERS
    ============================================================ */
+let lastModalTrigger = null;
+
+function openModal(id) {
+  const overlay = document.getElementById(id);
+  if (!overlay) return;
+  lastModalTrigger = document.activeElement;
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(() => {
+    const first = overlay.querySelector(
+      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    first?.focus();
+  });
+}
+
 function closeModal(id) {
   const overlay = document.getElementById(id);
+  if (!overlay) return;
   overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden', 'true');
   // シートのスクロール位置を初期化（次回は先頭から開く）
   const sheet = overlay.querySelector('.modal-sheet');
   if (sheet) sheet.scrollTop = 0;
   closeAcList();
   closeCardAcList();
+  if (lastModalTrigger instanceof HTMLElement) lastModalTrigger.focus();
+  lastModalTrigger = null;
 }
 function closeModalOnBg(e, id) {
   if (e.target.id === id) closeModal(id);
 }
+
+document.addEventListener('keydown', e => {
+  const overlay = document.querySelector('.modal-overlay.open');
+  if (!overlay) return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeModal(overlay.id);
+    return;
+  }
+  if (e.key !== 'Tab') return;
+  const focusable = [...overlay.querySelectorAll(
+    'input:not([type="hidden"]):not([disabled]), select:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )].filter(el => el.offsetParent !== null);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
 
 /* ============================================================
    TOAST
@@ -3088,7 +3315,7 @@ function renderExpList() {
          </button>`
       : '';
 
-    return `<div class="exp-row" onclick="openExpModal('${e.id}')">
+    return `<div class="exp-row" role="button" tabindex="0" onclick="openExpModal('${e.id}')" onkeydown="activateOnKey(event,()=>openExpModal('${e.id}'))">
       <div class="exp-type-icon" style="background:${typeColor}22">
         <span style="font-size:20px">${cat.emoji}</span>
       </div>
@@ -3289,7 +3516,7 @@ function openExpModal(id) {
     setExpMonthly(false);
   }
   updateExpJpyPreview();
-  document.getElementById('modal-exp').classList.add('open');
+  openModal('modal-exp');
 }
 
 function setExpType(type, btn) {
@@ -3442,7 +3669,7 @@ function renderLicense() {
       metaParts.push(`${sym}${Number(l.purchasePrice).toLocaleString()}`);
     }
 
-    return `<div class="lic-row" onclick="openLicModal('${l.id}')">
+    return `<div class="lic-row" role="button" tabindex="0" onclick="openLicModal('${l.id}')" onkeydown="activateOnKey(event,()=>openLicModal('${l.id}'))">
       <div class="lic-header">
         <div class="lic-icon" style="background:${catColor}22">
           <span>${l.category === 'os_device' ? '🖥️' : '💻'}</span>
@@ -3540,7 +3767,7 @@ function openLicModal(id) {
     setLicCat('software');
     setSelectedOs([]);
   }
-  document.getElementById('modal-lic').classList.add('open');
+  openModal('modal-lic');
 }
 
 function saveLicense() {
