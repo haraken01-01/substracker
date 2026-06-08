@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="SubsTrack">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="push-config.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -292,6 +293,21 @@ body {
 
 /* Section note */
 .section-note { font-size: 12px; color: var(--text2); margin-bottom: 14px; line-height: 1.6; padding: 10px 12px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); }
+.notification-status {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; margin-bottom: 12px;
+  border: 0.5px solid var(--border); border-radius: var(--radius-md);
+  background: var(--bg);
+}
+.notification-status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--gray); flex-shrink: 0; }
+.notification-status-dot.on { background: var(--success); }
+.notification-status-dot.warn { background: var(--warn); }
+.notification-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.notification-option {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 8px 4px; font-size: 12px; color: var(--text2);
+  background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+}
 
 /* Toast */
 .toast {
@@ -696,6 +712,55 @@ body {
         <input class="form-input" id="new-cat-emoji" type="text" placeholder="絵文字" style="width:60px;text-align:center;padding:0 8px">
         <input class="form-input" id="new-cat-name" type="text" placeholder="カテゴリ名（例：ニュース）" style="flex:1">
         <button class="btn btn-primary btn-sm" onclick="addCategory()" style="white-space:nowrap">追加</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Notification settings -->
+    <div style="margin-bottom:24px">
+      <div class="sec-header" style="margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600;color:var(--text)">🔔 更新・期限通知</span>
+      </div>
+      <div class="section-note">
+        iPhoneではホーム画面に追加したSubsTrackからのみ通知を有効にできます。通知用サーバーには、項目名・期日・表示金額だけを送信します。
+      </div>
+      <div class="notification-status">
+        <span class="notification-status-dot" id="notification-status-dot"></span>
+        <span style="font-size:13px;color:var(--text)" id="notification-status-text">確認中...</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="btn btn-primary btn-sm" id="notification-enable-btn" onclick="enablePushNotifications()">通知を有効にする</button>
+        <button class="btn btn-ghost btn-sm" id="notification-test-btn" onclick="sendTestNotification()" style="display:none">テスト通知</button>
+        <button class="btn btn-danger-ghost btn-sm" id="notification-disable-btn" onclick="disablePushNotifications()" style="display:none">通知を停止</button>
+      </div>
+      <div id="notification-detail-settings" style="display:none">
+        <div class="form-group">
+          <label class="form-label" for="notification-time">通知時刻</label>
+          <input class="form-input" id="notification-time" type="time" value="09:00" onchange="saveNotificationSettings()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">サブスク更新</label>
+          <div class="notification-options">
+            <label class="notification-option"><input type="checkbox" data-notify-sub="30" onchange="saveNotificationSettings()">30日前</label>
+            <label class="notification-option"><input type="checkbox" data-notify-sub="7" checked onchange="saveNotificationSettings()">7日前</label>
+            <label class="notification-option"><input type="checkbox" data-notify-sub="1" checked onchange="saveNotificationSettings()">1日前</label>
+            <label class="notification-option"><input type="checkbox" data-notify-sub="0" checked onchange="saveNotificationSettings()">当日</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ライセンス期限</label>
+          <div class="notification-options">
+            <label class="notification-option"><input type="checkbox" data-notify-lic="30" checked onchange="saveNotificationSettings()">30日前</label>
+            <label class="notification-option"><input type="checkbox" data-notify-lic="7" checked onchange="saveNotificationSettings()">7日前</label>
+            <label class="notification-option"><input type="checkbox" data-notify-lic="1" checked onchange="saveNotificationSettings()">1日前</label>
+            <label class="notification-option"><input type="checkbox" data-notify-lic="0" checked onchange="saveNotificationSettings()">当日</label>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="notification-generic-body" onchange="saveNotificationSettings()">
+          ロック画面には項目名と金額を表示しない
+        </label>
       </div>
     </div>
 
@@ -1149,6 +1214,8 @@ body {
    ============================================================ */
 const STORAGE_KEY = 'substracker_v1';
 const FX_STORAGE_KEY = 'substracker_fx';
+const NOTIFICATION_STORAGE_KEY = 'substracker_notifications_v1';
+const PUSH_API_BASE = String(window.SUBSTRACK_PUSH_CONFIG?.apiBase || '').replace(/\/+$/, '');
 
 /* ============================================================
    CURRENCY & FX RATES
@@ -1547,6 +1614,7 @@ function loadData() {
 function saveData() {
   DB = normalizeData(DB);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+  schedulePushSync();
 }
 
 const PM_DEFAULTS = [
@@ -1579,6 +1647,39 @@ function buildPmOptions(selectedId) {
 function defaultData() {
   return { subs: [], paymentMethods: [...PM_DEFAULTS], customCategories: [], expenses: [], licenses: [], version: 1 };
 }
+
+function defaultNotificationSettings() {
+  return {
+    time: '09:00',
+    subscriptionOffsets: [7, 1, 0],
+    licenseOffsets: [30, 7, 1, 0],
+    genericBody: false,
+  };
+}
+
+function normalizeNotificationOffsets(value, fallback) {
+  const result = [...new Set((Array.isArray(value) ? value : fallback)
+    .map(Number)
+    .filter(offset => Number.isInteger(offset) && offset >= 0 && offset <= 365))];
+  return result.length ? result.sort((a, b) => b - a) : fallback;
+}
+
+function loadNotificationSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || '{}');
+    const defaults = defaultNotificationSettings();
+    return {
+      time: /^\d{2}:\d{2}$/.test(saved.time || '') ? saved.time : defaults.time,
+      subscriptionOffsets: normalizeNotificationOffsets(saved.subscriptionOffsets, defaults.subscriptionOffsets),
+      licenseOffsets: normalizeNotificationOffsets(saved.licenseOffsets, defaults.licenseOffsets),
+      genericBody: saved.genericBody === true,
+    };
+  } catch {
+    return defaultNotificationSettings();
+  }
+}
+
+let notificationSettings = loadNotificationSettings();
 
 const SAFE_ID_RE = /^[A-Za-z0-9_-]{1,80}$/;
 const SAFE_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
@@ -2572,6 +2673,7 @@ function renderSettings() {
       ${delBtn}
     </div>`;
   }).join('');
+  renderNotificationSettings();
 }
 
 /* ============================================================
@@ -3126,6 +3228,285 @@ document.addEventListener('keydown', e => {
     first.focus();
   }
 });
+
+/* ============================================================
+   WEB PUSH NOTIFICATIONS
+   ============================================================ */
+function isStandalonePwa() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function supportsWebPush() {
+  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+}
+
+function base64UrlToUint8Array(value) {
+  const padding = '='.repeat((4 - value.length % 4) % 4);
+  const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(char => char.charCodeAt(0)));
+}
+
+function randomBase64Url(byteLength = 24) {
+  const bytes = crypto.getRandomValues(new Uint8Array(byteLength));
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function getPushIdentity() {
+  let deviceId = localStorage.getItem('substracker_push_device_id');
+  let token = localStorage.getItem('substracker_push_device_token');
+  if (!deviceId) {
+    deviceId = 'dev_' + randomBase64Url(18);
+    localStorage.setItem('substracker_push_device_id', deviceId);
+  }
+  if (!token) {
+    token = randomBase64Url(32);
+    localStorage.setItem('substracker_push_device_token', token);
+  }
+  return { deviceId, token };
+}
+
+async function getPushSubscription() {
+  if (!supportsWebPush()) return null;
+  const registration = await navigator.serviceWorker.ready;
+  return registration.pushManager.getSubscription();
+}
+
+function checkedOffsets(selector) {
+  return [...document.querySelectorAll(selector)]
+    .filter(input => input.checked)
+    .map(input => Number(input.dataset.notifySub ?? input.dataset.notifyLic))
+    .sort((a, b) => b - a);
+}
+
+function saveNotificationSettings() {
+  const time = document.getElementById('notification-time')?.value || '09:00';
+  const subscriptionOffsets = checkedOffsets('[data-notify-sub]');
+  const licenseOffsets = checkedOffsets('[data-notify-lic]');
+  if (!subscriptionOffsets.length || !licenseOffsets.length) {
+    showToast('通知日は1つ以上選択してください');
+    renderNotificationSettings();
+    return;
+  }
+  notificationSettings = {
+    time,
+    subscriptionOffsets,
+    licenseOffsets,
+    genericBody: document.getElementById('notification-generic-body')?.checked === true,
+  };
+  localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(notificationSettings));
+  schedulePushSync(true);
+}
+
+function buildPushRules() {
+  const rules = [];
+  for (const sub of DB.subs || []) {
+    if (!sub.renew) continue;
+    rules.push({
+      sourceType: 'subscription',
+      sourceId: sub.id,
+      name: sub.name,
+      amountText: fmtCurrency(sub.amount, sub.currency || 'JPY', sub.rateMode, sub.fixedRate),
+      dueDate: sub.renew,
+      cycle: sub.autoRenew !== false ? sub.cycle : 'none',
+      autoRenew: sub.autoRenew !== false,
+      offsets: notificationSettings.subscriptionOffsets,
+      targetUrl: `/substracker/?open=subscription:${encodeURIComponent(sub.id)}`,
+    });
+  }
+  for (const license of DB.licenses || []) {
+    if (!license.expiry) continue;
+    rules.push({
+      sourceType: 'license',
+      sourceId: license.id,
+      name: license.name,
+      amountText: '',
+      dueDate: license.expiry,
+      cycle: 'none',
+      autoRenew: false,
+      offsets: notificationSettings.licenseOffsets,
+      targetUrl: `/substracker/?open=license:${encodeURIComponent(license.id)}`,
+    });
+  }
+  return rules;
+}
+
+async function syncPushRegistration(showResult = false) {
+  if (!PUSH_API_BASE) return;
+  const subscription = await getPushSubscription();
+  if (!subscription) return;
+  const { deviceId, token } = getPushIdentity();
+  const response = await fetch(`${PUSH_API_BASE}/sync`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-device-token': token },
+    body: JSON.stringify({
+      deviceId,
+      subscription: subscription.toJSON(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Tokyo',
+      notificationTime: notificationSettings.time,
+      genericBody: notificationSettings.genericBody,
+      rules: buildPushRules(),
+    }),
+  });
+  if (!response.ok) throw new Error(`sync failed: ${response.status}`);
+  if (showResult) showToast('通知設定を同期しました ✓');
+}
+
+let pushSyncTimer;
+function schedulePushSync(showResult = false) {
+  clearTimeout(pushSyncTimer);
+  pushSyncTimer = setTimeout(() => {
+    syncPushRegistration(showResult).catch(error => {
+      console.error('Push sync failed:', error);
+      if (showResult) showToast('通知設定を同期できませんでした');
+    });
+  }, 500);
+}
+
+async function enablePushNotifications() {
+  if (!PUSH_API_BASE) {
+    showToast('通知サーバーがまだ設定されていません');
+    return;
+  }
+  if (!supportsWebPush()) {
+    showToast('この環境はWeb Pushに対応していません');
+    return;
+  }
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !isStandalonePwa()) {
+    showToast('先にホーム画面へ追加して、アイコンから起動してください');
+    return;
+  }
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      showToast('通知が許可されませんでした');
+      renderNotificationSettings();
+      return;
+    }
+    const keyResponse = await fetch(`${PUSH_API_BASE}/vapid-public-key`);
+    if (!keyResponse.ok) throw new Error('public key unavailable');
+    const { publicKey } = await keyResponse.json();
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: base64UrlToUint8Array(publicKey),
+      });
+    }
+    await syncPushRegistration(true);
+    renderNotificationSettings();
+  } catch (error) {
+    console.error('Push enable failed:', error);
+    showToast('通知を有効にできませんでした');
+  }
+}
+
+async function disablePushNotifications() {
+  try {
+    const subscription = await getPushSubscription();
+    const { deviceId, token } = getPushIdentity();
+    if (PUSH_API_BASE) {
+      await fetch(`${PUSH_API_BASE}/devices/${encodeURIComponent(deviceId)}`, {
+        method: 'DELETE',
+        headers: { 'x-device-token': token },
+      });
+    }
+    if (subscription) await subscription.unsubscribe();
+    if ('clearAppBadge' in navigator) await navigator.clearAppBadge();
+    showToast('通知を停止しました');
+  } catch (error) {
+    console.error('Push disable failed:', error);
+    showToast('通知の停止に失敗しました');
+  }
+  renderNotificationSettings();
+}
+
+async function sendTestNotification() {
+  if (!PUSH_API_BASE) return;
+  try {
+    await syncPushRegistration();
+    const { deviceId, token } = getPushIdentity();
+    const response = await fetch(`${PUSH_API_BASE}/devices/${encodeURIComponent(deviceId)}/test`, {
+      method: 'POST',
+      headers: { 'x-device-token': token },
+    });
+    if (!response.ok) throw new Error(`test failed: ${response.status}`);
+    showToast('テスト通知を送信しました');
+  } catch (error) {
+    console.error('Test notification failed:', error);
+    showToast('テスト通知を送信できませんでした');
+  }
+}
+
+async function renderNotificationSettings() {
+  const statusText = document.getElementById('notification-status-text');
+  const statusDot = document.getElementById('notification-status-dot');
+  if (!statusText || !statusDot) return;
+
+  document.getElementById('notification-time').value = notificationSettings.time;
+  document.querySelectorAll('[data-notify-sub]').forEach(input => {
+    input.checked = notificationSettings.subscriptionOffsets.includes(Number(input.dataset.notifySub));
+  });
+  document.querySelectorAll('[data-notify-lic]').forEach(input => {
+    input.checked = notificationSettings.licenseOffsets.includes(Number(input.dataset.notifyLic));
+  });
+  document.getElementById('notification-generic-body').checked = notificationSettings.genericBody;
+
+  const enableBtn = document.getElementById('notification-enable-btn');
+  const testBtn = document.getElementById('notification-test-btn');
+  const disableBtn = document.getElementById('notification-disable-btn');
+  const details = document.getElementById('notification-detail-settings');
+  statusDot.className = 'notification-status-dot';
+
+  if (!PUSH_API_BASE) {
+    statusText.textContent = '通知サーバーの設定待ちです';
+    statusDot.classList.add('warn');
+    enableBtn.style.display = 'inline-flex';
+    enableBtn.disabled = true;
+    testBtn.style.display = 'none';
+    disableBtn.style.display = 'none';
+    details.style.display = 'none';
+    return;
+  }
+  if (!supportsWebPush()) {
+    statusText.textContent = 'このブラウザは通知に対応していません';
+    statusDot.classList.add('warn');
+    enableBtn.style.display = 'none';
+    details.style.display = 'none';
+    return;
+  }
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !isStandalonePwa()) {
+    statusText.textContent = 'ホーム画面に追加してから有効にできます';
+    statusDot.classList.add('warn');
+    enableBtn.style.display = 'inline-flex';
+    enableBtn.disabled = false;
+    testBtn.style.display = 'none';
+    disableBtn.style.display = 'none';
+    details.style.display = 'none';
+    return;
+  }
+  const subscription = await getPushSubscription();
+  const active = Notification.permission === 'granted' && !!subscription;
+  statusText.textContent = active ? '通知は有効です' : Notification.permission === 'denied' ? '通知が拒否されています' : '通知は無効です';
+  statusDot.classList.toggle('on', active);
+  statusDot.classList.toggle('warn', Notification.permission === 'denied');
+  enableBtn.style.display = active ? 'none' : 'inline-flex';
+  enableBtn.disabled = Notification.permission === 'denied';
+  testBtn.style.display = active ? 'inline-flex' : 'none';
+  disableBtn.style.display = active ? 'inline-flex' : 'none';
+  details.style.display = active ? 'block' : 'none';
+}
+
+function openNotificationTarget() {
+  const target = new URLSearchParams(location.search).get('open');
+  if (!target) return;
+  const [type, encodedId] = target.split(':');
+  const id = decodeURIComponent(encodedId || '');
+  history.replaceState(null, '', location.pathname);
+  if (type === 'subscription' && DB.subs.some(item => item.id === id)) openSubModal(id);
+  if (type === 'license' && (DB.licenses || []).some(item => item.id === id)) openLicModal(id);
+}
 
 /* ============================================================
    TOAST
@@ -3818,7 +4199,10 @@ function deleteLicense() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/substracker/sw.js')
-      .then(reg => console.log('SW registered:', reg.scope))
+      .then(reg => {
+        console.log('SW registered:', reg.scope);
+        schedulePushSync();
+      })
       .catch(err => console.log('SW registration failed:', err));
   });
 }
@@ -3828,6 +4212,8 @@ if ('serviceWorker' in navigator) {
    ============================================================ */
 fetchFxRates(); // 起動時にレート取得（バックグラウンド）
 render();
+openNotificationTarget();
+if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
 </script>
 </body>
 </html>

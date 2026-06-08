@@ -1,0 +1,19 @@
+name = "substracker-notifications"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+preview_urls = false
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "substracker-notifications"
+database_id = "14d78b21-3f77-4b88-b392-664bb0c8020e"
+migrations_dir = "migrations"
+
+[vars]
+ALLOWED_ORIGINS = "https://haraken01-01.github.io,http://localhost:8000,http://127.0.0.1:8000"
+VAPID_SUBJECT = "mailto:haraken01@gmail.com"

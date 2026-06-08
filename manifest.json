@@ -1,6 +1,7 @@
 {
   "name": "SubsTrack",
   "short_name": "SubsTrack",
+  "id": "/substracker/",
   "description": "サブスク・支出・ライセンスを一元管理",
   "start_url": "/substracker/",
   "scope": "/substracker/",
